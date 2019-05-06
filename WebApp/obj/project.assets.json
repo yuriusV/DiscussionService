@@ -10159,11 +10159,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/yuriusv/Downloads/GiraffeSample-master/GiraffeSample.fsproj",
-      "projectName": "GiraffeSample",
-      "projectPath": "/home/yuriusv/Downloads/GiraffeSample-master/GiraffeSample.fsproj",
+      "projectUniqueName": "/home/yuriusv/Documents/projects/diploma/DiscussionService/WebApp/WebApp.fsproj",
+      "projectName": "WebApp",
+      "projectPath": "/home/yuriusv/Documents/projects/diploma/DiscussionService/WebApp/WebApp.fsproj",
       "packagesPath": "/home/yuriusv/.nuget/packages/",
-      "outputPath": "/home/yuriusv/Downloads/GiraffeSample-master/obj/",
+      "outputPath": "/home/yuriusv/Documents/projects/diploma/DiscussionService/WebApp/obj/",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "/usr/share/dotnet/sdk/NuGetFallbackFolder"

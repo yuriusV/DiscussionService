@@ -3,7 +3,7 @@ namespace DataAccess
 open System.IO
 open NPoco
 open Microsoft.Data.Sqlite
-
+(*
 open LunchTypes
 
 module LunchAccess =
@@ -66,4 +66,4 @@ values ($Name, $Latitude, $Longitude, $Cuisine, $VegetarianOptions, $VeganOption
         conn.Open()
 
         use db = new Database(conn)
-        db.Fetch<LunchSpot>(query)
+        db.Fetch<LunchSpot>(query)*)

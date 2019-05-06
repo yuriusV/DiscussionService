@@ -30,9 +30,10 @@
     <Watch Include="**\*.cshtml" Exclude="bin\**\*" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\*.fs" />
-    <Compile Include="LunchTypes.fs" />
+    <Compile Include="Models.fs" />
     <Compile Include="DataAccess.fs" />
+    <Compile Include="Logic.fs" />
+    <Compile Include="Routes.fs" />
     <Compile Include="Program.fs" />
     <Content Include="Sample.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
