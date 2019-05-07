@@ -9,6 +9,8 @@
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="FsSql" Version="2.1.0" />
+    <PackageReference Include="linq2db" Version="2.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.0.*" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.0.*" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.*" />
@@ -21,6 +23,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.*" />
     <PackageReference Include="Giraffe" Version="0.1.0-beta-100" />
     <PackageReference Include="Giraffe.Razor" Version="0.1.0-beta-100" />
+    <PackageReference Include="Npgsql" Version="4.0.6" />
     <PackageReference Include="NPoco" Version="3.7.2" />
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +33,7 @@
     <Watch Include="**\*.cshtml" Exclude="bin\**\*" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataAccessBase.fs" />
     <Compile Include="Models.fs" />
     <Compile Include="DataAccess.fs" />
     <Compile Include="Logic.fs" />
