@@ -4,6 +4,7 @@ open System
 
 open LinqToDB
 open LinqToDB.Mapping
+open System.ComponentModel.DataAnnotations.Schema
 
 [<CLIMutable>]
 type User = {
@@ -22,6 +23,7 @@ type User = {
 type Ban = {
     [<PrimaryKey>]
     Id: Guid;
+    [<ForeignKey(name = "sa")>]
     UserId: Guid;
     Period: int;
 }
