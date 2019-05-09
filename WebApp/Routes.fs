@@ -13,15 +13,69 @@ open DataAccess
 open Logic
 open Newtonsoft.Json
 open System
+open Models
+open FsSql
+open Newtonsoft.Json.Linq
+open System.Threading
 
 let jsonResponse dataGiver mapper next context =
-        let data = dataGiver (mapper context)
-        json data next context
+    let data = dataGiver (mapper context)
+    json data next context
+
+let createEntityHandler<'entity> () =
+    let entityName = typeof<'entity>.Name.ToLower()
+
+    let selectHandler id = DataAccess.CommonQueries.getById id |> json
+    
+    let advancedSelectHandler next (context: HttpContext) = 
+        task {
+            let! body = context.ReadBodyFromRequest()
+            let jsonBody = JObject.Parse(body)
+            let filters =
+                jsonBody.SelectTokens("filters/*")
+                |> Seq.map(fun x -> (
+                    x.SelectToken("key").ToObject<string>(), 
+                    x.SelectToken("value").ToObject()))
+
+            let columns =
+                jsonBody.SelectTokens("columns/*")
+                |> Seq.map(fun x -> x.ToObject<string>())
+
+            let resultDb = DataAccess.CommonQueries.fullGetByFilters entityName filters columns
+            let result = JsonConvert.SerializeObject resultDb
+            context.Response.ContentType <- "application/json"
+            let! _ = context.Response.WriteAsync(result, CancellationToken.None)
+            return! next context
+        }
+
+    let removeHandler id = 
+        DataAccess.CommonQueries.removeById id |> ignore
+        json {|success = true|}
+    let updateHandler id next context =
+        json 1 next context
+
+    choose [
+        subRoute ("/" + entityName) (
+            choose [
+                GET >=> routef "/%i" selectHandler
+                POST >=> route "/" >=> advancedSelectHandler
+                GET >=> routef "/remove/%i" removeHandler
+                POST >=> routef "/update/%i" updateHandler
+            ]
+        )
+    ]
+
+let entityHandlers = choose [
+    createEntityHandler<User>()
+    createEntityHandler<Community>()
+    createEntityHandler<Poll>()
+    createEntityHandler<User>()
+]
 
 let apiHandler: HttpHandler = 
-        choose [
-                routef "/users/%i" (fun id -> jsonResponse Logic.Users.getUsers (fun ctx -> id))
-        ]
+    choose [
+        entityHandlers
+    ]
 
 let webApp: HttpHandler =
     choose [

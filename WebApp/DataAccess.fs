@@ -28,7 +28,8 @@ let exec sqlCommand = sql.ExecNonQuery sqlCommand [] |> ignore
 let param = Sql.Parameter.make
 let execReader (qry : StringBuilder) = sql.ExecReader (qry.ToString())
 let execNonQuery (qry : StringBuilder) = sql.ExecNonQuery (qry.ToString())
-
+let escaper = new NpgsqlCommandBuilder()
+let escape = escaper.QuoteIdentifier
 
 type Paging =
     | All
@@ -54,7 +55,93 @@ let createUser name =
     let qty = Query "insert into \"Users\" (\"Name\") values (@name)"
     execNonQuery qty [param("name", name)] |> ignore
 
+let readMapFromDataRecord dataRecord = 1
+let sqlToOutput sql parameters = 
+    use reader = execReader sql parameters
+    reader |> Seq.ofDataReader |>  Seq.map readMapFromDataRecord |> Seq.toArray
 
+module CommonQueries =
+
+    let getByFilters entityName (filters: Map<string, obj>) = 
+        let filtersSql = 
+            filters |> Map.toList 
+            |> List.map (fun (key, value) -> 
+                sprintf """ "%s" = @%s """ (escape key) (escape key))
+            |> String.concat " and "
+
+        let parameters = 
+            filters |> Map.toList
+            |> List.map (fun (k, v) -> param(escape k, v))
+       
+        let qry = Query (sprintf """ select * from %s where %s """ (escape entityName) filtersSql)
+        sqlToOutput qry parameters
+
+    let getById entityName id = getByFilters entityName (Map.ofList [("Id", id)])
+
+    // with columns, including join like 'ColumnName.LinkedTable.ColumnName'
+    let fullGetByFilters entityName (filters: seq<string * obj>) (columns: string seq) =
+        let mutable columnList = []
+        let mutable joinList = []
+        let mutable filterList = []
+        let mutable paramList = []
+        let mutable joinedTables = []
+
+        for (k, v) in filters do
+            let joinType = if k.StartsWith("=") then "inner join " else "left join "
+            let parts = k.Replace("=", "").Split(".")
+
+            let column, linkedTable, linkedColumn = 
+                if parts.Length = 3 then parts.[0], parts.[1], parts.[2]
+                else k, entityName, k
+
+            if not (List.exists (fun x -> x = linkedTable) joinedTables) then
+                let joiner = (sprintf """%s "%s" on "%s"."%s" = "%s"."%s" """ 
+                    joinType linkedTable linkedTable "Id" entityName column)
+                joinList <- joiner :: joinList
+                joinedTables <- linkedTable :: joinedTables
+
+            let filter = (sprintf """ "%s"."%s" = @%s """ entityName linkedColumn (linkedTable + linkedColumn))
+            filterList <- filter :: filterList
+
+            paramList <- param(linkedTable + linkedColumn, v) :: paramList
+
+        for c in columns do
+            let parts = c.Replace("=", "").Split(".")
+
+            let column, linkedTable, linkedColumn = 
+                if parts.Length = 3 then parts.[0], parts.[1], parts.[2]
+                else c, entityName, c
+            
+            columnList <- (sprintf """ "%s"."%s" """ linkedTable linkedColumn) :: columnList
+        
+        let qry = Query( sprintf """select %s 
+        from %s
+        %s
+        where %s
+        """ (String.concat ", " columnList) 
+            entityName (String.concat "\n" joinList) 
+            (String.concat " and " filterList))
+
+        sqlToOutput qry paramList
+    
+    let fullGetById entityName id (columns: string list) = 
+        fullGetByFilters entityName (Seq.singleton ("Id", id)) columns
+
+    let removeById entityName id = 
+        let qry = Query(sprintf """ delete from "%s" where "Id" = @id """ (escape entityName))
+        execNonQuery qry [param("Id", id)]
+
+    let updateById entityName id (values: Map<string, obj>) = 
+        let columns = 
+            values |> Map.toSeq
+            |> Seq.map(fun(k, v) -> sprintf """ "%s" = @%s """ (escape k) (escape k))
+            |> String.concat ", "
+        let parameters = 
+            values |> Map.toSeq
+            |> Seq.map(fun(k, v) -> param(escape k, v))
+
+        let qry = Query(sprintf """ update "%s" set %s where "Id" = @id; """ (escape entityName) columns)
+        execNonQuery qry parameters
 
 
 

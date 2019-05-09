@@ -5,134 +5,157 @@ open System
 open LinqToDB
 open LinqToDB.Mapping
 open System.ComponentModel.DataAnnotations.Schema
-
 [<CLIMutable>]
 type User = {
     [<PrimaryKey>]
-    Id: Guid;
+    Id: int32;
     Name: string;
     FullName: string;
     Login: string;
     PasswordHash: string;
     PasswordSecret: string;
-    Avatar: Guid;
+    Avatar: int32;
     RegistrationDate: DateTime;
 }
 
 [<CLIMutable>]
 type Ban = {
     [<PrimaryKey>]
-    Id: Guid;
-    [<ForeignKey(name = "sa")>]
-    UserId: Guid;
+    Id: int32;
+    [<ForeignKey(name = "User")>]
+    UserId: int32;
     Period: int;
 }
 
 [<CLIMutable>]
 type Community = {
     [<PrimaryKey>]
-    Id: Guid;
+    Id: int32;
     Name: string;
     UrlName: string;
-    Avatar: Guid;
+    Avatar: int32;
     Description: string;
     Rating: int;
 }
 
 [<CLIMutable>]
+type Role = {
+    Id: int32;
+}
+
+[<CLIMutable>]
 type UserInCommunity = {
     [<PrimaryKey>]
-    Id: Guid;
-    UserId: Guid;
-    CommunityId: Guid;
-    RoleId: Guid;
+    Id: int32;
+    [<ForeignKey(name = "User")>]
+    UserId: int32;
+    [<ForeignKey(name = "Community")>]
+    CommunityId: int32;
+    [<ForeignKey(name = "User")>]
+    RoleId: int32;
 }
 
 [<CLIMutable>]
 type ProofLookup = {
     [<PrimaryKey>]
-    Id: Guid;
+    Id: int32;
     Name: string;
 }
 
 [<CLIMutable>]
 type UserInCommunityProof = {
     [<PrimaryKey>]
-    Id: Guid;
-    UserId: Guid;
-    CommunityId: Guid;
-    ProofId: Guid;
+    Id: int32;
+    [<ForeignKey(name = "User")>]
+    UserId: int32;
+    [<ForeignKey(name = "Community")>]
+    CommunityId: int32;
+    [<ForeignKey(name = "ProofLookup")>]
+    ProofId: int32;
 }
 
 [<CLIMutable>]
 type Post = {
     [<PrimaryKey>]
-    Id: Guid;
+    Id: int32;
     Title: string;
     UrlName: string;
-    AutorId: Guid;
-    CommunityId: Guid;
+    AutorId: int32;
+    [<ForeignKey(name = "Community")>]
+    CommunityId: int32;
     Content: string;
 }
 
 [<CLIMutable>]
 type PostVote = {
     [<PrimaryKey>]
-    Id: Guid;
-    PostId: Guid;
-    UserId: Guid;
+    Id: int32;
+    [<ForeignKey(name = "Post")>]
+    PostId: int32;
+    [<ForeignKey(name = "User")>]
+    UserId: int32;
     Vote: int;
 }
 
 [<CLIMutable>]
 type Tag = {
-    Id: Guid;
+    Id: int32;
     Name: string;
 }
 
 [<CLIMutable>]
 type PostTag = {
     [<PrimaryKey>]
-    Id: Guid;
-    PostId: Guid;
-    TagId: Guid;
+    Id: int32;
+    [<ForeignKey(name = "Post")>]
+    PostId: int32;
+    [<ForeignKey(name = "Tag")>]
+    TagId: int32;
 }
 
 [<CLIMutable>]
 type Comment = {
     [<PrimaryKey>]
-    Id: Guid;
+    Id: int32;
     CreatedDate: DateTime;
     ModifiedDate: DateTime;
-    ParentId: Guid;
-    PostId: Guid;
-    AutorId: Guid;
+    [<ForeignKey(name = "Comment")>]
+    ParentId: int32;
+    [<ForeignKey(name = "Post")>]
+    PostId: int32;
+    [<ForeignKey(name = "User")>]
+    AutorId: int32;
     Content: string;
 }
 
 [<CLIMutable>]
 type CommentVote = {
     [<PrimaryKey>]
-    Id: Guid;
-    CommentId: Guid;
-    UserId: Guid;
+    Id: int32;
+    [<ForeignKey(name = "Comment")>]
+    CommentId: int32;
+    [<ForeignKey(name = "User")>]
+    UserId: int32;
     Vote: int;
 }
 
 [<CLIMutable>]
 type Poll = {
     [<PrimaryKey>]
-    Id: Guid;
-    PostId: Guid;
+    Id: int32;
+    [<ForeignKey(name = "Post")>]
+    PostId: int32;
     PollConfig: string;
 }
 
 [<CLIMutable>]
 type PollResult = {
     [<PrimaryKey>]
-    Id: Guid;
-    CreatedDate: Guid;
-    PollId: Guid;
-    UserId: Guid;
+    Id: int32;
+    CreatedDate: int32;
+    [<ForeignKey(name = "Poll")>]
+    PollId: int32;
+    [<ForeignKey(name = "User")>]
+    UserId: int32;
     ResultConfig: string;
 }
