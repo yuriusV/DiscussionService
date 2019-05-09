@@ -9,7 +9,7 @@ module Logic
     module Auth = 1
 
     module Users =
-        let getUsers id = DataAccess.getUsersById id
+        let a = 1
     module Communities = 
         module Users = 
         module Posts = 

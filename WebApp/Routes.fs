@@ -23,22 +23,23 @@ let jsonResponse dataGiver mapper next context =
     json data next context
 
 let createEntityHandler<'entity> () =
-    let entityName = typeof<'entity>.Name.ToLower()
+    let entityName = typeof<'entity>.Name
 
-    let selectHandler id = DataAccess.CommonQueries.getById id |> json
-    
+    let selectHandler (id: int) = 
+        (DataAccess.CommonQueries.getById entityName id) |> json
+
     let advancedSelectHandler next (context: HttpContext) = 
         task {
             let! body = context.ReadBodyFromRequest()
             let jsonBody = JObject.Parse(body)
             let filters =
-                jsonBody.SelectTokens("filters/*")
+                jsonBody.SelectToken("filters").Children()
                 |> Seq.map(fun x -> (
                     x.SelectToken("key").ToObject<string>(), 
                     x.SelectToken("value").ToObject()))
 
             let columns =
-                jsonBody.SelectTokens("columns/*")
+                jsonBody.SelectToken("columns").Children()
                 |> Seq.map(fun x -> x.ToObject<string>())
 
             let resultDb = DataAccess.CommonQueries.fullGetByFilters entityName filters columns
@@ -50,12 +51,12 @@ let createEntityHandler<'entity> () =
 
     let removeHandler id = 
         DataAccess.CommonQueries.removeById id |> ignore
-        json {|success = true|}
+        json "ok"
     let updateHandler id next context =
         json 1 next context
 
     choose [
-        subRoute ("/" + entityName) (
+        subRoute ("/" + entityName.ToLower()) (
             choose [
                 GET >=> routef "/%i" selectHandler
                 POST >=> route "/" >=> advancedSelectHandler

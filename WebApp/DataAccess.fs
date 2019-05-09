@@ -39,23 +39,12 @@ let Query (str : string) = StringBuilder(str)
 let (@~) (qry : StringBuilder) (str : string) = qry.Append(" ").Append(str)
 
 
-
-
-let getUsersByName name = 
-    let qry = Query "select \"Id\", \"Name\" from \"User\" where \"Name\" = @name"
-    use reader = execReader (qry) [param("name", name)]
-    reader |> Seq.ofDataReader |> Seq.map (fun d -> d?Name.Value) |> Seq.toArray
-
-let getUsersById id =
-    let qry = Query "select \"Id\", \"Name\" from \"User\" where \"Id\" = @id"
-    use reader = execReader (qry) [param("id", id)]
-    reader |> Seq.ofDataReader |> Seq.map (fun d -> d?Name.Value) |> Seq.toArray
-
-let createUser name =
-    let qty = Query "insert into \"Users\" (\"Name\") values (@name)"
-    execNonQuery qty [param("name", name)] |> ignore
-
-let readMapFromDataRecord dataRecord = 1
+let readMapFromDataRecord (dataRecord: #IDataRecord) = 
+    Map.ofList [
+        for i = 0 to dataRecord.FieldCount - 1 do
+            yield (dataRecord.GetName(i), dataRecord.GetValue(i))
+    ]
+        
 let sqlToOutput sql parameters = 
     use reader = execReader sql parameters
     reader |> Seq.ofDataReader |>  Seq.map readMapFromDataRecord |> Seq.toArray
@@ -66,17 +55,18 @@ module CommonQueries =
         let filtersSql = 
             filters |> Map.toList 
             |> List.map (fun (key, value) -> 
-                sprintf """ "%s" = @%s """ (escape key) (escape key))
+                sprintf """ "%s" = @%s """ ( key) ( key))
             |> String.concat " and "
 
         let parameters = 
             filters |> Map.toList
-            |> List.map (fun (k, v) -> param(escape k, v))
-       
-        let qry = Query (sprintf """ select * from %s where %s """ (escape entityName) filtersSql)
+            |> List.map (fun (k, v) -> param(k, v))
+
+        let qry = Query (sprintf """ select * from "%s" where %s """ (entityName) filtersSql)
         sqlToOutput qry parameters
 
-    let getById entityName id = getByFilters entityName (Map.ofList [("Id", id)])
+    let getById entityName id = 
+        getByFilters entityName (Map.ofList [("Id", (id :> obj) )])
 
     // with columns, including join like 'ColumnName.LinkedTable.ColumnName'
     let fullGetByFilters entityName (filters: seq<string * obj>) (columns: string seq) =
@@ -84,7 +74,7 @@ module CommonQueries =
         let mutable joinList = []
         let mutable filterList = []
         let mutable paramList = []
-        let mutable joinedTables = []
+        let mutable joinedTables = [entityName]
 
         for (k, v) in filters do
             let joinType = if k.StartsWith("=") then "inner join " else "left join "
@@ -115,12 +105,13 @@ module CommonQueries =
             columnList <- (sprintf """ "%s"."%s" """ linkedTable linkedColumn) :: columnList
         
         let qry = Query( sprintf """select %s 
-        from %s
+        from "%s"
         %s
-        where %s
+        %s
         """ (String.concat ", " columnList) 
-            entityName (String.concat "\n" joinList) 
-            (String.concat " and " filterList))
+            entityName 
+            (String.concat "\n" joinList) 
+            (if List.isEmpty filterList then "" else " where " + (String.concat " and " filterList)))
 
         sqlToOutput qry paramList
     
