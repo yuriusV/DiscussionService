@@ -16,6 +16,8 @@ const initialState = {
   error: false,
 };
 
+
+
 /**
  * reducer for top level app state
  */
@@ -86,9 +88,6 @@ export const userReducer = (state = initialUserState, action) => {
         username,
         avatarUrl,
         email,
-        githubBio,
-        githubUrl,
-        githubLocation,
         role,
       } = action.payload;
 
@@ -101,9 +100,6 @@ export const userReducer = (state = initialUserState, action) => {
         username,
         avatarUrl,
         email,
-        githubBio,
-        githubUrl,
-        githubLocation,
         role,
       };
 

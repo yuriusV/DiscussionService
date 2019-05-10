@@ -52,7 +52,7 @@ class AppContainer extends Component {
     if (forums) {
       return (
         <div>
-          <Helmet><title>ReForum</title></Helmet>
+          <Helmet><title>Discussion service</title></Helmet>
 
           <div className={styles.gitForkTag}>
             <a className={styles.gitLink} href="https://github.com/shoumma/ReForum" target="_blank">Fork on Github</a>
@@ -72,13 +72,13 @@ class AppContainer extends Component {
 }
 
 export default connect(
-  (state) => { return {
+  (state) => ({
     forums: state.app.forums,
     currentForum: state.app.currentForum,
-  }; },
-  (dispatch) => { return {
+  }),
+  (dispatch) => ({
     getForums: () => { dispatch(getForums()); },
     updateCurrentForum: (currentForum) => { dispatch(updateCurrentForum(currentForum)); },
     getUser: () => { dispatch(getUser()); },
-  }; }
+  })
 )(AppContainer);

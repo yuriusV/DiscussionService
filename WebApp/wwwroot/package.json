@@ -75,6 +75,7 @@
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-2": "^6.18.0",
     "classnames": "^2.2.5",
+    "create-react-app": "^3.0.1",
     "css-loader": "^0.26.1",
     "draft-js": "^0.10.0",
     "eslint": "^3.12.1",

@@ -77,9 +77,15 @@ let apiHandler: HttpHandler =
     choose [
         entityHandlers
     ]
+let indexHtmlPath = "/public/build/index.html"
+    //"/wwwroot/public/index.html"
 
 let webApp: HttpHandler =
     choose [
-        route "/" >=> htmlFile "/wwwroot/public/index.html"
+        route "/" >=> htmlFile indexHtmlPath
+        route "/profile" >=> htmlFile indexHtmlPath
+        route "/user" >=> htmlFile indexHtmlPath
+        route "/community" >=> htmlFile indexHtmlPath
+        route "/post" >=> htmlFile indexHtmlPath
         subRoute "/api" apiHandler
         setStatusCode 404 >=> text "Not Found" ]

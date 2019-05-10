@@ -26,9 +26,10 @@ ReactDOM.render (
       </Route>
       <Route path="/" component={AppContainer}>
         <IndexRoute component={ForumFeed} />
-        <Route path=":forum" component={ForumFeed} />
-        <Route path=":forum/discussion/:discussion" component={SingleDiscussion} />
-        <Route path=":forum/new_discussion" component={NewDiscussion} />
+        <Route path="community/:communityname" component={} />
+        <Route path="post/:postname" component={SingleDiscussion} />
+        <Route path="post/create" component={NewDiscussion} />
+        <Route path="profile" component={UserProfile} />
         <Route path="user/:username" component={UserProfile} />
         <Route path="*" component={NotFound} />
       </Route>

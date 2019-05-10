@@ -8,6 +8,7 @@ import { singleDiscussionReducer } from '../Views/SingleDiscussion/reducers';
 import { newDiscussionReducer } from '../Views/NewDiscussion/reducers';
 import { adminInfoReducer } from '../Views/AdminDashboard/reducers';
 import { userProfileReducer } from '../Views/UserProfile/reducers';
+import { communityReducer } from '../Views/Community/reducers';
 
 // root reducer for app
 const rootReducer = combineReducers({
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
   newDiscussion: newDiscussionReducer,
   adminInfo: adminInfoReducer,
   userProfile: userProfileReducer,
+  communityInfo: communityReducer
 });
 
 // dev tool extension

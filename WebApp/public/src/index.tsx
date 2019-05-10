@@ -1,0 +1,24 @@
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
+
+import IndexWidget from './widgets/IndexWidget';
+import CommunityWidget from './widgets/CommunityWidget';
+import PostWidget from './widgets/PostWidget';
+import UserWidget from './widgets/UserWidget';
+
+import Header from './components/Header';
+
+ReactDOM.render (
+    <BrowserRouter>
+        <Header></Header>
+        <br />
+        <Route exact path="/" component={IndexWidget}/>
+        <Route path="/community/:communityname" component={CommunityWidget} />
+        <Route path="/post/:postname" component={PostWidget} />
+        <Route path="/post/create" component={PostWidget} />
+        <Route path="/profile" component={UserWidget} />
+        <Route path="/user/:username" component={UserWidget} />
+    </BrowserRouter>,
+  document.getElementById('root')
+);
