@@ -16,9 +16,9 @@ class PostWidget extends React.Component<any, any> {
             post: {
                 author: {},
                 community: {},
-                content: '',
-                comments: []
-            }
+                content: ''
+            },
+            comments: []
         }
     }
 
@@ -33,9 +33,9 @@ class PostWidget extends React.Component<any, any> {
             this.setState({post: x[0]})
             return api.getPostComments(x[0].id)
         }).then(x => {
-            const post = this.state.post
-            post.comments = x
-            this.setState({post: post})
+            this.setState({
+                comments: x
+            })
         })
     }
 
@@ -49,7 +49,7 @@ class PostWidget extends React.Component<any, any> {
                 <Grid item xs={1}/>
                 <Grid item xs={1}/>
                 <Grid item xs={10}>
-                    <CommentTree comments={this.state.post.comments}/>
+                    <CommentTree comments={this.state.comments}/>
                 </Grid>
             </Grid>
         )

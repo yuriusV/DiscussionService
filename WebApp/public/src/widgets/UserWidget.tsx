@@ -6,7 +6,7 @@ import {default as data} from '../appData'
 import PostLong from '../components/PostLong'
 import CommentTree from '../components/CommentTree'
 import PostShort from '../components/PostShort'
-import { Card, Paper, Typography, ListItem, ListItemText, List, Link} from '@material-ui/core';
+import { Card, Paper, Typography, ListItem, ListItemText, List, Link, Button} from '@material-ui/core';
 import api from '../commonApi'
 
 const user = (data as any).userPage
@@ -61,17 +61,27 @@ class PostWidget extends React.Component<any, any> {
         ))
     }
 
+    createPostAction = () => {
+        location.href = "/newPost"
+    }
+
     getUserInfoCard = (state) => {
         return (
             <Paper style={{width: '100%', padding: '30px'}}>
                 <Grid container>
+
                     <Grid item xs={12}>
                         <Typography><h2><b>{state.nick}</b></h2></Typography>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
                         <Typography><b>Name</b> {state.name}</Typography>
                         <Typography><b>Communities</b> {this.getCommunities(state.communities)}</Typography>
                     </Grid>
+                    <Grid item xs={6}>
+                        <Button onClick={this.createPostAction}>Create post</Button>
+                        
+                    </Grid>
+
                     <Grid item xs={12}>
                         <List>
                             <ListItem>

@@ -31,6 +31,16 @@ const request = path => (x = null) =>
     .then(processResponse)
     .then(modelLogger)
 
+const post = path => data => fetch('/api/v1/' + path, {
+    method: 'POST',
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+}).then(x => x.json()).then(processResponse).then(modelLogger)
+
+
 export default {
     currentUserHeader: request('currentUserHeader'),
     getCurrentUserInfo: request('getCurrentUserInfo'),
@@ -40,5 +50,16 @@ export default {
     getUserCardInfo: request('getUserCardInfo'),
     getUserPosts: request('getUserPosts'),
     getPostData: request('getPostData'),
-    getPostComments: request('getPostComments')
+    getPostComments: request('getPostComments'),
+    getUserCommunities: request('getUserCommunities'),
+    getCurrentUserCommunities: request('getCurrentUserCommunities'),
+    getListCommunities: request('getListCommunities'),
+    getListUsers: request('getListUsers'),
+    // post
+    createPost: post('createPost'),
+    deletePost: post('deletePost'),
+    votePost: post('votePost'),
+    voteComment: post('voteComment'),
+    votePoll: post('votePoll'),
+    makeCommment: post('makeComment')
 }

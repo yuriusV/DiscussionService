@@ -53,17 +53,6 @@ const styles = theme => ({
 class RecipeReviewCard extends React.Component<any, any> {
   state = Object.assign({expanded: false}, this.props.model)
 
-  handleExpandClick = () => {
-    this.setState(state => ({ expanded: !state.expanded }));
-  };
-
-  makeLike = () => {
-    this.setState(state => ({likes: state.likes + 1}))
-  }
-
-  makeDislike = () => {
-    this.setState(state => ({dislikes: state.dislikes + 1}))
-  }
 
   render() {
     const { classes } = this.props;
@@ -76,63 +65,20 @@ class RecipeReviewCard extends React.Component<any, any> {
                     <MoreVertIcon />
                 </IconButton>
             }
-            title={this.props.model.title}
-            subheader={new Date(this.props.model.time).toLocaleTimeString()}
-        
+            title={this.props.model.name}
+            subheader={this.props.model.countUsers + " users, " + this.props.model.countPosts + " posts"}
         />
 
         <CardContent>
-            <PostContent model={this.props.model.content[0]} />
+            
         </CardContent>
         <CardActions className={classes.actions} disableActionSpacing>
 
-            <IconButton onClick={this.makeLike}>
+            <IconButton>
                 <ThumbUpIcon />
-                <Typography>
-                    {this.state.likes}
-                </Typography>
-            </IconButton>
-            <IconButton onClick={this.makeDislike}>
-                <ThumbDownIcon />
-                <Typography>
-                    {this.state.dislikes}
-                </Typography>
-            </IconButton>
-
-            <Link href={"/post/" + this.props.model.url}>
-                <IconButton>
-                    <CommentIcon />
-                    <Typography>
-                        {this.props.model.countComments}
-                    </Typography>
-                </IconButton>
-                
-            </Link>
-
-            <IconButton aria-label="Share">
-                <ShareIcon />
-            </IconButton>
-            
-            <Typography><Link href={"/user/" + this.props.model.author.url}>{this.props.model.author.name}</Link> in community <Link href={"/community/" + this.props.model.community.url}>{this.props.model.community.name}</Link></Typography>
-
-            <IconButton
-                className={classnames(classes.expand, {
-                [classes.expandOpen]: this.state.expanded,
-                })}
-                onClick={this.handleExpandClick}
-                aria-expanded={this.state.expanded}
-                aria-label="Show more"
-            >
-                <ExpandMoreIcon />
             </IconButton>
             
         </CardActions>
-
-        <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
-          <CardContent>
-                <PostContent model={this.props.model.content.slice(1)} />
-          </CardContent>
-        </Collapse>
       </Card>
     );
   }

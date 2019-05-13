@@ -87,6 +87,7 @@ let webApp: HttpHandler =
         routef "/community/%s" (fun s -> htmlFile indexHtmlPath)
         routef "/post/%s" (fun s -> htmlFile indexHtmlPath)
         route "/users" >=> htmlFile indexHtmlPath
-        route "/communites" >=> htmlFile indexHtmlPath
+        route "/newPost" >=> htmlFile indexHtmlPath
+        route "/communities" >=> htmlFile indexHtmlPath
         subRoute "/api" apiHandler
         setStatusCode 404 >=> text "Not Found" ]

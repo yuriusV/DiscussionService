@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import CommunitySmallCard from '../components/CommunitySmallCard'
 import {default as data} from '../appData'
+import api from '../commonApi'
 
 
 const styles = theme => ({
@@ -19,11 +20,21 @@ const styles = theme => ({
   });
 
 class IndexWidget extends React.Component<any, any> {
-    componentDidMount = () => {
+    constructor(props) {
+        super(props)
+        this.state = {
+            communities: []
+        }
     }
 
-    getCommunities = (posts) => {
-        return posts.map(x => (
+    componentDidMount = () => {
+        api.getListCommunities().then(x => {
+            this.setState({communities: x})
+        })
+    }
+
+    getCommunities = (coms) => {
+        return coms.map(x => (
             <Grid key={x.id} item xs={12}>
                 <CommunitySmallCard model={x}></CommunitySmallCard>
             </Grid>
@@ -45,7 +56,7 @@ class IndexWidget extends React.Component<any, any> {
                     </Grid>
                     <Grid item xs={9}>
                         <Grid container spacing={24}>
-                            {this.getCommunities((data as any).communities)}
+                            {this.getCommunities(this.state.communities)}
                         </Grid>
                     </Grid>
                     <Grid item xs={2}>

@@ -6,7 +6,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import Collapse from '@material-ui/core/Collapse';
-import Avatar from '@material-ui/core/Avatar';
+import { Avatar, Button } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
@@ -21,99 +21,131 @@ import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classnames from 'classnames';
+import api from '../commonApi'
+import TextEditor from './TextEditor'
 
 import PostContent from './PostContent'
 
 const styles = theme => ({
-  card: {
-    width: '100%',
-  },
-  media: {
-    height: 0,
-    paddingTop: '56.25%', // 16:9
-  },
-  actions: {
-    display: 'flex',
-  },
-  expand: {
-    transform: 'rotate(0deg)',
-    marginLeft: 'auto',
-    transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: 'rotate(180deg)',
-  },
-  avatar: {
-    backgroundColor: red[500],
-  },
+    card: {
+        width: '100%',
+    },
+    media: {
+        height: 0,
+        paddingTop: '56.25%', // 16:9
+    },
+    actions: {
+        display: 'flex',
+    },
+    expand: {
+        transform: 'rotate(0deg)',
+        marginLeft: 'auto',
+        transition: theme.transitions.create('transform', {
+            duration: theme.transitions.duration.shortest,
+        }),
+    },
+    expandOpen: {
+        transform: 'rotate(180deg)',
+    },
+    avatar: {
+        backgroundColor: red[500],
+    },
 });
 
 class RecipeReviewCard extends React.Component<any, any> {
-  state = Object.assign({}, this.props.model)
+    state = Object.assign({}, this.props.model)
 
-  makeLike = () => {
-    this.setState(state => ({likes: state.likes + 1}))
-  }
+    makeLike = () => {
+        api.votePost({
+            postId: this.props.model.id,
+            vote: 1
+        }).then(x => {
+            this.setState(state => ({ likes: state.likes + 1 }))
+        })
 
-  makeDislike = () => {
-    this.setState(state => ({dislikes: state.dislikes + 1}))
-  }
+    }
 
-  render() {
-    const { classes } = this.props;
+    makeDislike = () => {
+        api.votePost({
+            postId: this.props.model.id,
+            vote: -1
+        }).then(x => {
+            this.setState(state => ({ dislikes: state.dislikes + 1 }))
+        })
+    }
 
-    return (
-      <Card className={classes.card}>
-        <CardHeader
-            action={
-                <IconButton>
-                    <MoreVertIcon />
-                </IconButton>
-            }
-            title={this.props.model.title}
-            subheader={new Date(this.props.model.time).toLocaleTimeString()}
-            //"/post/" + this.props.model.url
-        
-        />
+    clickComment = () => {
+        this.setState(state => ({commentExpanded: !state.commentExpanded}))
+    }
 
-        <CardContent>
-            <PostContent model={this.props.model.content} />
-        </CardContent>
-        <CardActions className={classes.actions} disableActionSpacing>
+    commentPush = (content) => {
+        api.makeCommment({
+            parentCommentId: 0,
+            content: "comment", //content, Kostyle
+            postId: this.props.model.id
+        }).then(x => {
+            location.reload()
+        })
+    }
 
-            <IconButton onClick={this.makeLike}>
-                <ThumbUpIcon />
-                <Typography>
-                    {this.state.likes}
-                </Typography>
-            </IconButton>
-            <IconButton onClick={this.makeDislike}>
-                <ThumbDownIcon />
-                <Typography>
-                    {this.state.dislikes}
-                </Typography>
-            </IconButton>
+    render() {
+        const { classes } = this.props;
 
-            <IconButton>
-                <CommentIcon />
-                <Typography>
-                    {this.props.model.countComments}
-                </Typography>
-            </IconButton>
-                
+        return (
+            <Card className={classes.card}>
+                <CardHeader
+                    action={
+                        <IconButton>
+                            <MoreVertIcon />
+                        </IconButton>
+                    }
+                    title={this.props.model.title}
+                    subheader={new Date(this.props.model.time).toLocaleTimeString()}
 
-            <IconButton aria-label="Share">
-                <ShareIcon />
-            </IconButton>
-            
-            <Typography><Link href={"/user/" + this.props.model.author.url}>{this.props.model.author.name}</Link> in community <Link href={"/community/" + this.props.model.community.url}>{this.props.model.community.name}</Link></Typography>
-            
-        </CardActions>
-      </Card>
-    );
-  }
+                />
+
+                <CardContent>
+                    <PostContent model={this.props.model.content} />
+                </CardContent>
+                <CardActions className={classes.actions} disableActionSpacing>
+
+                    <IconButton onClick={this.makeLike}>
+                        <ThumbUpIcon />
+                        <Typography>
+                            {this.state.likes}
+                        </Typography>
+                    </IconButton>
+                    <IconButton onClick={this.makeDislike}>
+                        <ThumbDownIcon />
+                        <Typography>
+                            {this.state.dislikes}
+                        </Typography>
+                    </IconButton>
+
+                    <IconButton>
+                        <CommentIcon />
+                        <Typography>
+                            {this.props.model.countComments}
+                        </Typography>
+                    </IconButton>
+
+
+                    <IconButton aria-label="Share">
+                        <ShareIcon />
+                    </IconButton>
+
+                    <Typography><Link href={"/user/" + this.props.model.author.url}>{this.props.model.author.name}</Link> in community <Link href={"/community/" + this.props.model.community.url}>{this.props.model.community.name}</Link></Typography>
+                    <Button onClick={this.clickComment}>Comment</Button>
+                </CardActions>
+
+                <Collapse in={this.state.commentExpanded} timeout="auto" unmountOnExit>
+                    <CardContent>
+                            <TextEditor onSave={this.commentPush} onCancel={() => this.setState({commentExpanded: false})} />
+                    </CardContent>
+                </Collapse>
+            </Card>
+        );
+    }
 }
 
 

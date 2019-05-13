@@ -27,9 +27,9 @@ class CommentTree extends React.Component<any, any> {
         return (
             <Paper>
                 <List component="nav" className={classes.root}>
-                    {this.state.comments.map((x, i) => {
+                    {this.props.comments.map((x, i) => {
                         let commentItem = [(<ListItem key={i}>
-                            <OneComment comment={x}
+                            <OneComment model={x}
                                 onReply={this.onReply} />
                         </ListItem>)];
                         if (i < this.state.comments.length - 1) {

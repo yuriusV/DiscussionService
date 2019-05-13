@@ -21,6 +21,7 @@ import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classnames from 'classnames';
+import api from '../commonApi'
 
 import PostContent from './PostContent'
 
@@ -58,11 +59,22 @@ class RecipeReviewCard extends React.Component<any, any> {
   };
 
   makeLike = () => {
-    this.setState(state => ({likes: state.likes + 1}))
+      api.votePost({
+          postId: this.props.model.id,
+          vote: 1
+      }).then(x => {
+        this.setState(state => ({likes: state.likes + 1}))
+      })
+    
   }
 
   makeDislike = () => {
-    this.setState(state => ({dislikes: state.dislikes + 1}))
+    api.votePost({
+        postId: this.props.model.id,
+        vote: -1
+    }).then(x => {
+        this.setState(state => ({dislikes: state.dislikes + 1}))
+    })
   }
 
   render() {

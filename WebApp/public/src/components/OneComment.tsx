@@ -26,6 +26,7 @@ import classnames from 'classnames';
 
 import PostContent from './PostContent'
 import { Card } from '@material-ui/core';
+import api from '../commonApi'
 
 
 const ExpansionPanel = withStyles({
@@ -96,14 +97,25 @@ const ExpansionPanelDetails = withStyles(theme => ({
 }))(MuiExpansionPanelDetails);
 
 class OneComment extends React.Component<any, any> {
-    state = Object.assign({}, this.props.comment, { expanded: false })
+    state = Object.assign({}, this.props.model, { expanded: false })
 
     makeLike = () => {
-        this.setState(state => ({ likes: state.likes + 1 }))
+        api.votePost({
+            postId: this.props.model.id,
+            vote: 1
+        }).then(x => {
+            this.setState(state => ({likes: state.likes + 1}))
+        })
+  
     }
 
     makeDislike = () => {
-        this.setState(state => ({ dislikes: state.dislikes + 1 }))
+        api.votePost({
+            postId: this.props.model.id,
+            vote: -1
+        }).then(x => {
+            this.setState(state => ({dislikes: state.dislikes + 1}))
+        })
     }
 
     makeReply = () => {
@@ -112,7 +124,14 @@ class OneComment extends React.Component<any, any> {
         this.setState({ expanded: true })
     }
 
-    onReplySave = () => {
+    onReplySave = (content) => {
+        api.makeCommment({
+            parentCommentId: this.props.model.id,
+            content: "comment", //content, Kostyle
+            postId: this.props.model.postId
+        }).then(x => {
+            location.reload()
+        })
         this.setState({ expanded: false })
     }
 
@@ -137,15 +156,15 @@ class OneComment extends React.Component<any, any> {
                                         <MoreVertIcon />
                                     </IconButton>
                                 }
-                                title={this.props.comment.author.name}
-                                subheader={new Date(this.props.comment.time).toLocaleTimeString()}
+                                title={this.props.model.author.name}
+                                subheader={new Date(this.props.model.time).toLocaleTimeString()}
 
                             />
                         </Grid>
 
                         <Grid item xs={12}>
                             <CardContent>
-                                <PostContent model={this.props.comment.content} />
+                                <PostContent model={this.props.model.content} />
                             </CardContent>
                         </Grid>
                         <Grid item xs={12}>
