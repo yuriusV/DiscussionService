@@ -37,6 +37,8 @@
     <Compile Include="Models.fs" />
     <Compile Include="DataAccess.fs" />
     <Compile Include="Logic.fs" />
+    <Compile Include="AuthUtil.fs"/>
+    <Compile Include="DefaultApiHandler.fs"/>
     <Compile Include="Routes.fs" />
     <Compile Include="Program.fs" />
     <Content Include="Sample.db">

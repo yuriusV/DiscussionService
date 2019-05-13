@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
+import {Menu, Link, Tab, Tabs} from '@material-ui/core';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { withStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -15,6 +15,11 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
+import compose from 'recompose/compose';
+
+import {withRouter} from 'react-router-dom';
+
+import commonApi from '../commonApi'
 
 const styles = theme => ({
   root: {
@@ -69,7 +74,7 @@ const styles = theme => ({
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('md')]: {
-      width: 200,
+      width: 300,
     },
   },
   sectionDesktop: {
@@ -109,7 +114,15 @@ class PrimarySearchAppBar extends React.Component<any, any> {
     this.setState({ mobileMoreAnchorEl: null });
   };
 
+  mapPathToTabNumber = (path) => {
+    if (path === "/") return 0;
+    if (path.indexOf("/communit") !== -1) return 1;
+    if (path.indexOf("/user") !== -1) return 2;
+    return 0;
+  }
+
   render() {
+
     const { anchorEl, mobileMoreAnchorEl } = this.state;
     const { classes } = this.props;
     const isMenuOpen = Boolean(anchorEl);
@@ -138,14 +151,6 @@ class PrimarySearchAppBar extends React.Component<any, any> {
       >
         <MenuItem onClick={this.handleMobileMenuClose}>
           <IconButton color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <MailIcon />
-            </Badge>
-          </IconButton>
-          <p>Messages</p>
-        </MenuItem>
-        <MenuItem onClick={this.handleMobileMenuClose}>
-          <IconButton color="inherit">
             <Badge badgeContent={11} color="secondary">
               <NotificationsIcon />
             </Badge>
@@ -165,18 +170,15 @@ class PrimarySearchAppBar extends React.Component<any, any> {
       <div className={classes.root}>
         <AppBar position="static">
           <Toolbar>
-            <IconButton className={classes.menuButton} color="inherit" aria-label="Open drawer">
-              <MenuIcon />
-            </IconButton>
             <Typography className={classes.title} variant="h6" color="inherit" noWrap>
-              Disscussion service
+            <Link href="/">Disscussion service</Link>
             </Typography>
             <div className={classes.search}>
               <div className={classes.searchIcon}>
                 <SearchIcon />
               </div>
               <InputBase
-                placeholder="Search…"
+                placeholder="Search posts, users communities…"
                 classes={{
                   root: classes.inputRoot,
                   input: classes.inputInput,
@@ -184,12 +186,12 @@ class PrimarySearchAppBar extends React.Component<any, any> {
               />
             </div>
             <div className={classes.grow} />
+            <Tabs value={this.mapPathToTabNumber(this.props.location.pathname)}>
+                <Tab href="/" label="Feed" />
+                <Tab href="/communities" label="Communities" />
+                <Tab href="/users" label="Users" />
+            </Tabs>
             <div className={classes.sectionDesktop}>
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
-                  <MailIcon />
-                </Badge>
-              </IconButton>
               <IconButton color="inherit">
                 <Badge badgeContent={17} color="secondary">
                   <NotificationsIcon />
@@ -202,6 +204,7 @@ class PrimarySearchAppBar extends React.Component<any, any> {
                 color="inherit"
               >
                 <AccountCircle />
+                
               </IconButton>
             </div>
             <div className={classes.sectionMobile}>
@@ -218,4 +221,4 @@ class PrimarySearchAppBar extends React.Component<any, any> {
   }
 }
 
-export default withStyles(styles)(PrimarySearchAppBar);
+export default compose(withRouter, withStyles(styles))(PrimarySearchAppBar);

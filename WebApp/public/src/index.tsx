@@ -7,7 +7,11 @@ import CommunityWidget from './widgets/CommunityWidget';
 import PostWidget from './widgets/PostWidget';
 import UserWidget from './widgets/UserWidget';
 
+import CommunityList from './widgets/CommunityList';
+import UsersList from './widgets/UsersList';
+
 import Header from './components/Header';
+
 
 ReactDOM.render (
     <BrowserRouter>
@@ -19,6 +23,9 @@ ReactDOM.render (
         <Route path="/post/create" component={PostWidget} />
         <Route path="/profile" component={UserWidget} />
         <Route path="/user/:username" component={UserWidget} />
+
+        <Route path="/communities" component={CommunityList} />
+        <Route path="/users" component={UsersList} />
     </BrowserRouter>,
   document.getElementById('root')
 );

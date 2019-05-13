@@ -18,6 +18,10 @@ import classnames from 'classnames';
 
 class PostContent extends React.Component<any, any> {
     renderPost = (postModel, start = 0) => {
+        // Kostyle
+        if (typeof postModel === "string") {
+            return this.renderText(postModel, 0);
+        }
         return postModel.map((x, i) => {
             if (typeof x === "string") {
                 return this.renderText(x, start + i)

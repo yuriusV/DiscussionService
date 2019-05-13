@@ -14,7 +14,7 @@ type User = {
     Login: string;
     PasswordHash: string;
     PasswordSecret: string;
-    Avatar: int32;
+    UrlPhoto: string;
     RegistrationDate: DateTime;
 }
 
@@ -33,7 +33,7 @@ type Community = {
     Id: int32;
     Name: string;
     UrlName: string;
-    Avatar: int32;
+    UrlPhoto: string;
     Description: string;
     Rating: int;
 }
@@ -80,10 +80,11 @@ type Post = {
     Id: int32;
     Title: string;
     UrlName: string;
-    AutorId: int32;
+    AuthorId: int32;
     [<ForeignKey(name = "Community")>]
     CommunityId: int32;
     Content: string;
+    CreatedOn: DateTime;
 }
 
 [<CLIMutable>]
@@ -117,14 +118,14 @@ type PostTag = {
 type Comment = {
     [<PrimaryKey>]
     Id: int32;
-    CreatedDate: DateTime;
-    ModifiedDate: DateTime;
+    CreatedOn: DateTime;
+    ModifiedOn: DateTime;
     [<ForeignKey(name = "Comment")>]
     ParentId: int32;
     [<ForeignKey(name = "Post")>]
     PostId: int32;
     [<ForeignKey(name = "User")>]
-    AutorId: int32;
+    AuthorId: int32;
     Content: string;
 }
 

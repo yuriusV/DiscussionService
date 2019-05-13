@@ -82,7 +82,7 @@ class RecipeReviewCard extends React.Component<any, any> {
         />
 
         <CardContent>
-            <PostContent model={this.props.model.content} Kostyle />
+            <PostContent model={this.props.model.content[0]} />
         </CardContent>
         <CardActions className={classes.actions} disableActionSpacing>
 
@@ -130,7 +130,7 @@ class RecipeReviewCard extends React.Component<any, any> {
 
         <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
           <CardContent>
-                <PostContent model={this.props.model.content} Kostyle />
+                <PostContent model={this.props.model.content.slice(1)} />
           </CardContent>
         </Collapse>
       </Card>

@@ -134,20 +134,210 @@ module CommonQueries =
         let qry = Query(sprintf """ update "%s" set %s where "Id" = @id; """ (escape entityName) columns)
         execNonQuery qry parameters
 
+module LogicQueries = 
+    let getUserProfile id =
+        sqlToOutput (Query """
+            select 
+                "Id" as id, 
+                "FullName" as "name", 
+                "Name" as "nick",
+                "UrlPhoto" as "urlPhoto"
+            from "User"
+            where "Id" = @id""") [param("id", id)]
+
+    let searchInSite searchText = 
+        sqlToOutput (Query """
+            select
+                "Id" as id,
+                "Title" as title,
+                '/posts/' || "UrlName" as url,
+                'post' as "type"
+            from "Post"
+            where "Title" = @searchText
+            union all
+            select
+                "Id" as id,
+                "FullName" as title,
+                '/users/' || "Name" as url,
+                'user' as "type"
+            from "User"
+            where "FullName" = @searchText or "Name" = @searchText
+            union all
+            select
+                "Id" as id,
+                "Name" as title,
+                '/coomunities/' || "UrlName" as url,
+                'community' as "type"
+            from "Community"
+            where "Name" = @searchText
+            """) [param("searchText", searchText)]
 
 
+    let getUserFeed userId = 
+        sqlToOutput (Query """
+            select
+            	"Post"."Id" as id,
+            	"Post"."Title" as title,
+            	"Post"."UrlName" as url,
+            	author."Id" as "author.id",
+            	author."Name" as "author.url",
+            	author."FullName" as "author.name",
+            	author."UrlPhoto" as "author.urlPhoto",
+            	c."UrlName" as "community.url",
+            	c."Name" as "community.name",
+            	c."UrlPhoto" as "community.urlPhoto",
+            	"Post"."CreatedOn" as "time",
+            	"Post"."Content" as "content",
+            	(select count(1) from "Comment" where "PostId" = "Post"."Id") as "countComments",
+            	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" > 0) as likes,
+            	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" < 0) as dislikes
+            from "Post"
+            inner join "Community" c on "Post"."CommunityId" = c."Id"
+            inner join "UserInCommunity" on c."Id" = "UserInCommunity"."CommunityId" and "UserInCommunity"."UserId" = @userId
+            inner join "User" author on author."Id" = "Post"."AuthorId"
+           """) [param("userId", userId)]
+
+    let getCommuintyPageCardInfo communityId = 
+        sqlToOutput (Query """
+            select
+            c."Id" as id,
+            c."Name" as "name",
+            c."UrlName" as url,
+            c."UrlPhoto" as "urlPhoto",
+            (select count(1) from "UserInCommunity" where "CommunityId" = c."Id") as "countUsers",
+            (select count(1) from "Post" where "CommunityId" = c."Id") as "countPosts"
+            from "Community" c
+            where c."UrlName" = @community
+            """) [param("community", communityId)]
+
+    let getCommunityPosts communityId = 
+        sqlToOutput (Query """
+                    select
+	"Post"."Id" as id,
+	"Post"."Title" as title,
+	"Post"."UrlName" as url,
+	author."Id" as "author.id",
+	author."Name" as "author.url",
+	author."FullName" as "author.name",
+	author."UrlPhoto" as "author.urlPhoto",
+	c."UrlName" as "community.url",
+	c."Name" as "community.name",
+	c."UrlPhoto" as "community.urlPhoto",
+	"Post"."CreatedOn" as "time",
+	"Post"."Content" as "content",
+	(select count(1) from "Comment" where "PostId" = "Post"."Id") as "countComments",
+	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" > 0) as likes,
+	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" < 0) as dislikes
+    from "Post"
+    inner join "Community" c on "Post"."CommunityId" = c."Id"
+    inner join "User" author on author."Id" = "Post"."AuthorId"
+    where c."Id" = @communityId
+                """) [param("communityId", communityId)]
+
+    let getUserCardInfo userId = 
+        sqlToOutput (Query """
+                   select
+            	u."Id" as id,
+            	u."FullName" as "name",
+            	u."UrlPhoto" as "urlPhoto",
+            	(select count(1) from "Comment" where "AuthorId" = 1) as "countComments",
+            	(select count(1) from "PostVote" where "PostVote"."UserId" = u."Id" and "Vote" > 0) as pluses,
+            	(select count(1) from "PostVote" where "PostVote"."UserId" = u."Id" and "Vote" < 0) as minuses,
+            	u."Name" as nick
+            from "User" u
+            where u."Name" = @user
+                """) [param("user", userId)]
 
 
+    let getUserPosts userId = 
+        sqlToOutput (Query """
+                    select
+	"Post"."Id" as id,
+	"Post"."Title" as title,
+	"Post"."UrlName" as url,
+	author."Id" as "author.id",
+	author."Name" as "author.url",
+	author."FullName" as "author.name",
+	author."UrlPhoto" as "author.urlPhoto",
+	c."UrlName" as "community.url",
+	c."Name" as "community.name",
+	c."UrlPhoto" as "community.urlPhoto",
+	"Post"."CreatedOn" as "time",
+	"Post"."Content" as "content",
+	(select count(1) from "Comment" where "PostId" = "Post"."Id") as "countComments",
+	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" > 0) as likes,
+	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" < 0) as dislikes
+    from "Post"
+    inner join "Community" c on "Post"."CommunityId" = c."Id"
+    inner join "User" author on author."Id" = "Post"."AuthorId"
+    where author."Id" = @userId
+                """) [param("userId", userId)]
+
+    let getPostData postId =
+        sqlToOutput (Query """
+                   select
+	"Post"."Id" as id,
+	"Post"."Title" as title,
+	"Post"."UrlName" as url,
+	author."Id" as "author.id",
+	author."Name" as "author.url",
+	author."FullName" as "author.name",
+	author."UrlPhoto" as "author.urlPhoto",
+	c."UrlName" as "community.url",
+	c."Name" as "community.name",
+	c."UrlPhoto" as "community.urlPhoto",
+	"Post"."CreatedOn" as "time",
+	"Post"."Content" as "content",
+	(select count(1) from "Comment" where "PostId" = "Post"."Id") as "countComments",
+	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" > 0) as likes,
+	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" < 0) as dislikes
+    from "Post"
+    inner join "Community" c on "Post"."CommunityId" = c."Id"
+    inner join "User" author on author."Id" = "Post"."AuthorId"
+    where "Post"."UrlName" = @post
+                """) [param("post", postId)]
 
 
+    let getPostComments postId = 
+        sqlToOutput (Query """
+                    select
+	c."Id" as id,
+	c."Content" as "content",
+	c."ParentId" as "parentId",
+	author."Id" as "author.id",
+	author."Name" as "author.url",
+	author."FullName" as "author.name",
+	author."UrlPhoto" as "author.urlPhoto",
+	case when c."ModifiedOn" is not null then c."ModifiedOn" else c."CreatedOn" end as "time",
+	case when c."ModifiedOn" is not null then 1 else 0 end as "isModified",
+	(select count(1) from "CommentVote" where "CommentVote"."CommentId" = c."Id" and "Vote" > 0) as likes,
+	(select count(1) from "CommentVote" where "CommentVote"."CommentId" = c."Id" and "Vote" < 0) as dislikes
+from "Comment" c
+inner join "User" author on author."Id" = c."AuthorId"
+where c."PostId" = @postId
+                """) [param("postId", postId)]
 
+    let getListCommunities offset limit = 
+        sqlToOutput (Query """
+        select
+        	c."Id" as id,
+        	c."UrlName" as "url",
+        	c."Name" as "name",
+        	c."UrlPhoto" as "urlPhoto",
+        	(select count(1) from "Post" where "CommunityId" = c."Id") as "countPosts",
+        	(select count(1) from "UserInCommunity" uc where uc."CommunityId" = c."Id") as "countUsers"
+        from "Community" c
+        """) []
 
-
-
-
-
-
-
+    let getListUsers offset limit = 
+        sqlToOutput (Query """
+             select
+            	u."Id" as id,
+            	u."Name" as "url",
+            	u."FullName" as "name",
+            	u."UrlPhoto" as "urlPhoto"
+            from "User" u
+        """) []
 
 
 

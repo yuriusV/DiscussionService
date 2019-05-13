@@ -26,7 +26,7 @@ import PostContent from './PostContent'
 
 const styles = theme => ({
   card: {
-    width: '90%',
+    width: '100%',
   },
   media: {
     height: 0,
@@ -51,11 +51,7 @@ const styles = theme => ({
 });
 
 class RecipeReviewCard extends React.Component<any, any> {
-  state = Object.assign({expanded: false}, this.props.model)
-
-  handleExpandClick = () => {
-    this.setState(state => ({ expanded: !state.expanded }));
-  };
+  state = Object.assign({}, this.props.model)
 
   makeLike = () => {
     this.setState(state => ({likes: state.likes + 1}))
@@ -83,7 +79,7 @@ class RecipeReviewCard extends React.Component<any, any> {
         />
 
         <CardContent>
-            <PostContent model={this.props.model.content[0]} />
+            <PostContent model={this.props.model.content} />
         </CardContent>
         <CardActions className={classes.actions} disableActionSpacing>
 
@@ -100,40 +96,21 @@ class RecipeReviewCard extends React.Component<any, any> {
                 </Typography>
             </IconButton>
 
-            <Link href={"/post/" + this.props.model.url}>
-                <IconButton>
-                    <CommentIcon />
-                    <Typography>
-                        {this.props.model.countComments}
-                    </Typography>
-                </IconButton>
+            <IconButton>
+                <CommentIcon />
+                <Typography>
+                    {this.props.model.countComments}
+                </Typography>
+            </IconButton>
                 
-            </Link>
 
             <IconButton aria-label="Share">
                 <ShareIcon />
             </IconButton>
             
             <Typography><Link href={"/user/" + this.props.model.author.url}>{this.props.model.author.name}</Link> in community <Link href={"/community/" + this.props.model.community.url}>{this.props.model.community.name}</Link></Typography>
-
-            <IconButton
-                className={classnames(classes.expand, {
-                [classes.expandOpen]: this.state.expanded,
-                })}
-                onClick={this.handleExpandClick}
-                aria-expanded={this.state.expanded}
-                aria-label="Show more"
-            >
-                <ExpandMoreIcon />
-            </IconButton>
             
         </CardActions>
-
-        <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
-          <CardContent>
-                <PostContent model={this.props.model.content.slice(1)} />
-          </CardContent>
-        </Collapse>
       </Card>
     );
   }

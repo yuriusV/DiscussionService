@@ -17,10 +17,7 @@ open Models
 open FsSql
 open Newtonsoft.Json.Linq
 open System.Threading
-
-let jsonResponse dataGiver mapper next context =
-    let data = dataGiver (mapper context)
-    json data next context
+open DefaultApiHandler
 
 let createEntityHandler<'entity> () =
     let entityName = typeof<'entity>.Name
@@ -76,6 +73,7 @@ let entityHandlers = choose [
 let apiHandler: HttpHandler = 
     choose [
         entityHandlers
+        subRoute "/v1" defaultApiHandler
     ]
 let indexHtmlPath = "/public/build/index.html"
     //"/wwwroot/public/index.html"
@@ -84,8 +82,11 @@ let webApp: HttpHandler =
     choose [
         route "/" >=> htmlFile indexHtmlPath
         route "/profile" >=> htmlFile indexHtmlPath
-        route "/user" >=> htmlFile indexHtmlPath
-        route "/community" >=> htmlFile indexHtmlPath
-        route "/post" >=> htmlFile indexHtmlPath
+
+        routef "/user/%s" (fun s -> htmlFile indexHtmlPath)
+        routef "/community/%s" (fun s -> htmlFile indexHtmlPath)
+        routef "/post/%s" (fun s -> htmlFile indexHtmlPath)
+        route "/users" >=> htmlFile indexHtmlPath
+        route "/communites" >=> htmlFile indexHtmlPath
         subRoute "/api" apiHandler
         setStatusCode 404 >=> text "Not Found" ]

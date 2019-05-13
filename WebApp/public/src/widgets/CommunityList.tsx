@@ -3,9 +3,9 @@ import * as React from 'react';
 import Grid from '@material-ui/core/Grid';
 import { withStyles } from '@material-ui/core/styles';
 
-import PostShort from '../components/PostShort'
+import CommunitySmallCard from '../components/CommunitySmallCard'
 import {default as data} from '../appData'
-import api from '../commonApi'
+
 
 const styles = theme => ({
     root: {
@@ -19,33 +19,18 @@ const styles = theme => ({
   });
 
 class IndexWidget extends React.Component<any, any> {
-
-    constructor(props) {
-        super(props)
-        this.state ={
-            posts: []
-        }
-    }
-
     componentDidMount = () => {
-        api.getUserFeed().then(x => {
-            this.setState({posts: x})
-        })
     }
 
-    getPosts = (posts) => {
+    getCommunities = (posts) => {
         return posts.map(x => (
             <Grid key={x.id} item xs={12}>
-                <PostShort model={x}></PostShort>
+                <CommunitySmallCard model={x}></CommunitySmallCard>
             </Grid>
         ));
     }
 
     getPopularToday = (popularComments) => {
-
-    }
-
-    getCommunities = () => {
 
     }
 
@@ -60,7 +45,7 @@ class IndexWidget extends React.Component<any, any> {
                     </Grid>
                     <Grid item xs={9}>
                         <Grid container spacing={24}>
-                            {this.getPosts(this.state.posts)}
+                            {this.getCommunities((data as any).communities)}
                         </Grid>
                     </Grid>
                     <Grid item xs={2}>

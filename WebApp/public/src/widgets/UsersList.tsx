@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import PostShort from '../components/PostShort'
 import {default as data} from '../appData'
-import api from '../commonApi'
+
 
 const styles = theme => ({
     root: {
@@ -15,22 +15,11 @@ const styles = theme => ({
       padding: theme.spacing.unit * 2,
       textAlign: 'center' as 'center',
       color: theme.palette.text.secondary,
-    },
+    }
   });
 
 class IndexWidget extends React.Component<any, any> {
-
-    constructor(props) {
-        super(props)
-        this.state ={
-            posts: []
-        }
-    }
-
     componentDidMount = () => {
-        api.getUserFeed().then(x => {
-            this.setState({posts: x})
-        })
     }
 
     getPosts = (posts) => {
@@ -60,7 +49,7 @@ class IndexWidget extends React.Component<any, any> {
                     </Grid>
                     <Grid item xs={9}>
                         <Grid container spacing={24}>
-                            {this.getPosts(this.state.posts)}
+                            {this.getPosts((data as any).feedPosts)}
                         </Grid>
                     </Grid>
                     <Grid item xs={2}>
