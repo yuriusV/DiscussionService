@@ -111,6 +111,7 @@ class NewPostWidget extends React.Component<any, any> {
                                 </MenuItem>
                               ))}
                         </TextField>
+                        
                     </Grid>
                     <Grid item xs={4}>
                         <Button onClick={this.onClickCreatePost.bind(this)}>Create post</Button>
@@ -123,3 +124,27 @@ class NewPostWidget extends React.Component<any, any> {
 
 
 export default NewPostWidget;
+
+/*
+<TextField
+          id="outlined-adornment-password"
+          className={classNames(classes.margin, classes.textField)}
+          variant="outlined"
+          type={this.state.showPassword ? 'text' : 'password'}
+          label="Password"
+          value={this.state.password}
+          onChange={this.handleChange('password')}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="Toggle password visibility"
+                  onClick={this.handleClickShowPassword}
+                >
+                  {this.state.showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+*/

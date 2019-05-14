@@ -151,12 +151,6 @@ let defaultApiHandler: HttpHandler =
         POST >=> route "/votePoll" // TODO
         POST >=> route "/makeComment" >=> Handlers.makeCommentHandler >=> outputJson {|ok = true|}
 
-
-        // Auth
-        route "/login"
-        route "/register"
-        route "/logout"
-
         // Communities
         route "/enterCommunity"
         route "/exitCommunity"

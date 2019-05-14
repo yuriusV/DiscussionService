@@ -19,12 +19,13 @@
     <PackageReference Include="Microsoft.Data.Sqlite" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.*" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.*" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.*" />
     <PackageReference Include="Giraffe" Version="0.1.0-beta-100" />
     <PackageReference Include="Giraffe.Razor" Version="0.1.0-beta-100" />
     <PackageReference Include="Npgsql" Version="4.0.6" />
     <PackageReference Include="NPoco" Version="3.7.2" />
+    <PackageReference Include="Microsoft.AspNetCore.All" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />

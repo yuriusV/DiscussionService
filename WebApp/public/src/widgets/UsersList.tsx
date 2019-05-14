@@ -3,8 +3,9 @@ import * as React from 'react';
 import Grid from '@material-ui/core/Grid';
 import { withStyles } from '@material-ui/core/styles';
 
-import PostShort from '../components/PostShort'
+import UserSmallCard from '../components/UserSmallCard'
 import {default as data} from '../appData'
+import api from '../commonApi'
 
 
 const styles = theme => ({
@@ -15,28 +16,31 @@ const styles = theme => ({
       padding: theme.spacing.unit * 2,
       textAlign: 'center' as 'center',
       color: theme.palette.text.secondary,
-    }
+    },
   });
 
 class IndexWidget extends React.Component<any, any> {
-    componentDidMount = () => {
+    constructor(props) {
+        super(props)
+        this.state = {
+            users: []
+        }
     }
 
-    getPosts = (posts) => {
-        return posts.map(x => (
+    componentDidMount = () => {
+        api.getListUsers().then(x => {
+            this.setState({users: x})
+        })
+    }
+
+    getUsers = (coms) => {
+        return coms.map(x => (
             <Grid key={x.id} item xs={12}>
-                <PostShort model={x}></PostShort>
+                <UserSmallCard model={x}></UserSmallCard>
             </Grid>
         ));
     }
 
-    getPopularToday = (popularComments) => {
-
-    }
-
-    getCommunities = () => {
-
-    }
 
     render = () => {
         const {classes} = this.props
@@ -49,7 +53,7 @@ class IndexWidget extends React.Component<any, any> {
                     </Grid>
                     <Grid item xs={9}>
                         <Grid container spacing={24}>
-                            {this.getPosts((data as any).feedPosts)}
+                            {this.getUsers(this.state.users)}
                         </Grid>
                     </Grid>
                     <Grid item xs={2}>

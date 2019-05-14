@@ -6,6 +6,7 @@ import {default as data} from '../appData'
 import PostLong from '../components/PostLong'
 import CommentTree from '../components/CommentTree'
 import api from '../commonApi'
+import Poll from 'react-polls';
 
 const post = (data as any).openedPost
 

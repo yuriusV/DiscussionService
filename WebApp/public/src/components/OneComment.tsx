@@ -4,7 +4,7 @@ import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
-import {Typography, Grid} from '@material-ui/core';
+import {Typography, Grid, ListItem, Divider, List} from '@material-ui/core';
 
 import MuiExpansionPanel from '@material-ui/core/ExpansionPanel';
 import MuiExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -142,7 +142,10 @@ class OneComment extends React.Component<any, any> {
     render() {
         const { classes } = this.props;
 
-        return (
+        return ([
+            <div>
+                
+
             <ExpansionPanel
                 square
                 expanded={this.state.expanded}
@@ -150,26 +153,15 @@ class OneComment extends React.Component<any, any> {
                 <ExpansionPanelSummary>
                     <Grid container>
                         <Grid item xs={12}>
-                            <CardHeader
-                                action={
-                                    <IconButton>
-                                        <MoreVertIcon />
-                                    </IconButton>
-                                }
-                                title={this.props.model.author.name}
-                                subheader={new Date(this.props.model.time).toLocaleTimeString()}
-
-                            />
+                        <span><b>{this.props.model.author.name}</b></span>
+                        <span>&nbsp;&nbsp;&nbsp;&nbsp;{new Date(this.props.model.time).toLocaleTimeString()}</span>
+                        <br/>
                         </Grid>
 
                         <Grid item xs={12}>
-                            <CardContent>
                                 <PostContent model={this.props.model.content} />
-                            </CardContent>
                         </Grid>
                         <Grid item xs={12}>
-                        <CardActions className={classes.actions} disableActionSpacing>
-
                             <IconButton onClick={this.makeLike}>
                                 <ThumbUpIcon />
                                 <Typography>
@@ -187,10 +179,8 @@ class OneComment extends React.Component<any, any> {
                                 <CommentIcon />
                                 <Typography>
                                     Reply
-                        </Typography>
+                                </Typography>
                             </IconButton>
-
-                        </CardActions>
                         </Grid>
                     </Grid>
                 </ExpansionPanelSummary>
@@ -202,7 +192,27 @@ class OneComment extends React.Component<any, any> {
                 </TextEditor>
             </ExpansionPanelDetails>
             </ExpansionPanel >
+                <div style={{marginLeft: "30px"}}>
+                    {this.renderSubComments()}
+                </div>
+            </div>
+            ]
         );
+    }
+
+    renderSubComments = () => {
+        let subs = this.props.model.children;
+        return subs.map((x, i) => {
+                    let commentItem = [(<ListItem key={i}>
+                        <OneComment model={x} />
+                    </ListItem>)];
+                    if (i < subs.length - 1) {
+                        commentItem.push(<Divider key={subs.length + i} />)
+                    }
+
+                    return commentItem
+                })
+        
     }
 }
 

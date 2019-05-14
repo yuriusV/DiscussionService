@@ -16,6 +16,8 @@ type User = {
     PasswordSecret: string;
     UrlPhoto: string;
     RegistrationDate: DateTime;
+    SessionStartDate: DateTime;
+    SessionToken: string;
 }
 
 [<CLIMutable>]

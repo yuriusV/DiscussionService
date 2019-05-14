@@ -14,6 +14,7 @@ open Models
 open DataAccessBase
 open Tx
 open Tx
+open Sql
 
 let createConnectionString user pass db = 
     sprintf @"User ID=%s;Password=%s;Host=localhost;Port=5432;Database=%s" user pass db
@@ -376,3 +377,65 @@ values (@parentId, @postId, @dataContent, @authorId, @createdOn)
             param("authorId", userId); 
             param("dataContent", content); 
             param("createdOn", time)]
+
+module AuthQueries =
+
+    let register fullName login hashedPassword token registerTime =
+        execNonQuery (Query """
+            insert into "User" ("Name", "FullName", "Login", "PasswordHash", "RegistrationDate", "SessionStartDate", "SessionToken")
+values (@login, @fullName, @login, @hashedPassword, @registerTime, @registerTime, @token)
+        """) [param("fullName", fullName); 
+            param("login", login); 
+            param("hashedPassword", hashedPassword);
+            param("token", token);
+            param("registerTime", registerTime)] |> ignore
+        
+        sqlToOutput (Query """
+            select
+	            "Id" as id
+            from "User"
+            where "SessionToken" = @token
+        """) [param("token", token)]
+
+    let getLoginData token =
+        sqlToOutput (Query """
+            select
+	MAX("Name") as "Name",
+	MAX("FullName") as "FullName",
+	MAX("Login") as "Login",
+	CASE WHEN MAX("Login") IS NULL THEN 0 ELSE 1 END AS "Exists"
+from "User"
+where "SessionToken" = @token
+        """) [param("token", token)]
+
+    let logout token =
+        execNonQuery (Query """
+            update "User" set "SessionToken" = NULL, "SessionStartDate" = NULL
+            where "SessionToken" = @token
+        """) [param("token", token)]
+
+    let getAlreadyExistsLogin login =
+        sqlToOutput (Query """
+            select count(1) as "Count" from "User" where "Login" = @login
+        """) [param("login", login)]
+
+    let checkCredentials login passwordHash = 
+        sqlToOutput (Query """
+            select
+	MAX("Name") as "Name",
+	MAX("Id") as "Id",
+	MAX("Login") as "Login",
+	CASE WHEN MAX("Login") IS NULL THEN 0 ELSE 1 END AS "Exists"
+from "User"
+where "Login" = @login
+    and "PasswordHash" = @password
+        """) [param("login", login); param("password", passwordHash)]
+    
+    let setTokenToUser userId token =
+        sqlToOutput (Query """
+            update "User" set "SessionToken" = @token
+            where "Id" = @userId
+        """) [param("userId", userId); param("token", token)]
+
+let getSingleRowValue<'t> (a: Map<string, obj>[]) key =
+    Map.find key (Array.head a) :?> 't

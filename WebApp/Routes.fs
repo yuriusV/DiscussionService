@@ -70,6 +70,37 @@ let entityHandlers = choose [
     createEntityHandler<User>()
 ]
 
+module AuthHandlers =
+    let makeLogin next (context: HttpContext)=
+        let body = context.ReadBodyFromRequest().GetAwaiter().GetResult()
+        let jo = JObject.Parse(body)
+
+        let login = getJValue<string> jo "login"
+        let password = getJValue<string> jo "password"
+        let checkRes = AuthUtil.loginWithCredentials context login password
+        if checkRes then
+            outputJson {|success = true|} next context
+        else
+            outputJson {|success = false|} next context
+
+    let makeLogout next context = 
+        let res = AuthUtil.logout context
+        if res then outputJson {|success = true|} next context
+        else outputJson {|success = false|} next context
+
+    let makeRegister next (context: HttpContext) =
+        let body = context.ReadBodyFromRequest().GetAwaiter().GetResult()
+        let jo = JObject.Parse(body)
+
+        let login = getJValue<string> jo "login"
+        let password = getJValue<string> jo "password"
+        let fullName = getJValue<string> jo "fullName"
+        let checkRes = AuthUtil.register context fullName login password
+        if checkRes then
+            outputJson {|success = true|} next context
+        else
+            outputJson {|success = false|} next context
+
 let apiHandler: HttpHandler = 
     choose [
         entityHandlers
@@ -89,5 +120,10 @@ let webApp: HttpHandler =
         route "/users" >=> htmlFile indexHtmlPath
         route "/newPost" >=> htmlFile indexHtmlPath
         route "/communities" >=> htmlFile indexHtmlPath
+        
+        POST >=> route "/login" >=> AuthHandlers.makeLogin
+        POST >=> route "/register" >=> AuthHandlers.makeRegister
+        POST >=> route "/logout" >=> AuthHandlers.makeLogout
+
         subRoute "/api" apiHandler
         setStatusCode 404 >=> text "Not Found" ]
