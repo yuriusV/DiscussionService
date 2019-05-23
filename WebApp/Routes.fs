@@ -113,6 +113,7 @@ let webApp: HttpHandler =
     choose [
         route "/" >=> htmlFile indexHtmlPath
         route "/profile" >=> htmlFile indexHtmlPath
+        GET >=> route "/login" >=> htmlFile indexHtmlPath
 
         routef "/user/%s" (fun s -> htmlFile indexHtmlPath)
         routef "/community/%s" (fun s -> htmlFile indexHtmlPath)

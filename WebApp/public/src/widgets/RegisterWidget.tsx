@@ -75,8 +75,8 @@ class NewPostWidget extends React.Component<any, any> {
 
                     <Grid item xs={12}>
                         <TextField
-                          id="title"
-                          label="Title"
+                          id="fullName"
+                          label="Your full name"
                           value={this.state.title}
                           onChange={e => this.setState({title: e.target.value})}
                           margin="normal"

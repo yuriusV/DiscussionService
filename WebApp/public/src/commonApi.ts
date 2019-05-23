@@ -31,6 +31,7 @@ const request = path => (x = null) =>
     .then(processResponse)
     .then(modelLogger)
 
+
 const post = path => data => fetch('/api/v1/' + path, {
     method: 'POST',
     headers: {
@@ -39,6 +40,16 @@ const post = path => data => fetch('/api/v1/' + path, {
     },
     body: JSON.stringify(data)
 }).then(x => x.json()).then(processResponse).then(modelLogger)
+
+// Custom queries
+const login = data => fetch('/login', {
+    method: 'POST',
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+})
 
 
 export default {
@@ -61,5 +72,6 @@ export default {
     votePost: post('votePost'),
     voteComment: post('voteComment'),
     votePoll: post('votePoll'),
-    makeCommment: post('makeComment')
+    makeCommment: post('makeComment'),
+    login
 }

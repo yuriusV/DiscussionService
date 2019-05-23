@@ -10,6 +10,7 @@ import UserWidget from './widgets/UserWidget';
 import CommunityList from './widgets/CommunityList';
 import UsersList from './widgets/UsersList';
 import NewPostWidget from './widgets/NewPostWidget';
+import LoginWidget from './widgets/LoginWidget';
 
 import Header from './components/Header';
 
@@ -28,6 +29,7 @@ ReactDOM.render (
         <Route path="/communities" component={CommunityList} />
         <Route path="/users" component={UsersList} />
         <Route path="/newPost" component={NewPostWidget} />
+        <Route path="/login" component={LoginWidget} />
     </BrowserRouter>,
   document.getElementById('root')
 );
