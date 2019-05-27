@@ -41,7 +41,8 @@ open Routes
 open Microsoft.AspNetCore.Authentication.Cookies
 open AuthUtil
 
-
+module Logger =
+    let log = ignore
 // Error handler
 
 let errorHandler (ex : Exception) (logger : ILogger) =

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0znla71" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="3.4.0">
+  <bpmn:collaboration id="Collaboration_0c9fjz0">
+    <bpmn:participant id="Participant_09qxobt" name="Клєнтська частина" processRef="Process_149qap3" />
+    <bpmn:participant id="Participant_0pl1zm8" name="Серверна частина" processRef="Process_17wapx7" />
+    <bpmn:messageFlow id="MessageFlow_0cemi29" sourceRef="Task_0w1hf4x" targetRef="StartEvent_1vm14bq" />
+    <bpmn:messageFlow id="MessageFlow_0z0hisb" sourceRef="EndEvent_0kft6m6" targetRef="Task_0xl7yfc" />
+    <bpmn:messageFlow id="MessageFlow_11aipoi" sourceRef="EndEvent_05y2x8d" targetRef="Task_1agnjoj" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_149qap3" isExecutable="false">
+    <bpmn:dataStoreReference id="DataStoreReference_1lycok3" />
+    <bpmn:startEvent id="StartEvent_192wwaw">
+      <bpmn:outgoing>SequenceFlow_1gh0r5k</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_0jnxfm9" name="Перехід в пост з опитуванням">
+      <bpmn:incoming>SequenceFlow_1gh0r5k</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1vj514h</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0cydk8w</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_0udzfix" name="Відображення опитування">
+      <bpmn:incoming>SequenceFlow_1vj514h</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1w7bcyq</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_0w1hf4x" name="Вибір варіантів опитування">
+      <bpmn:incoming>SequenceFlow_1w7bcyq</bpmn:incoming>
+    </bpmn:task>
+    <bpmn:task id="Task_0xl7yfc" name="Відображення актуальних результатів опитування">
+      <bpmn:incoming>SequenceFlow_0cydk8w</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_13c1ooo</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1tvuxrb</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_1agnjoj" name="Відображення помилки голосування">
+      <bpmn:outgoing>SequenceFlow_13c1ooo</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="SequenceFlow_1gh0r5k" sourceRef="StartEvent_192wwaw" targetRef="Task_0jnxfm9" />
+    <bpmn:sequenceFlow id="SequenceFlow_1vj514h" sourceRef="Task_0jnxfm9" targetRef="Task_0udzfix">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_0cydk8w" sourceRef="Task_0jnxfm9" targetRef="Task_0xl7yfc">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_1w7bcyq" sourceRef="Task_0udzfix" targetRef="Task_0w1hf4x" />
+    <bpmn:sequenceFlow id="SequenceFlow_13c1ooo" sourceRef="Task_1agnjoj" targetRef="Task_0xl7yfc" />
+    <bpmn:sequenceFlow id="SequenceFlow_1tvuxrb" sourceRef="Task_0xl7yfc" targetRef="EndEvent_07gt73i" />
+    <bpmn:endEvent id="EndEvent_07gt73i">
+      <bpmn:incoming>SequenceFlow_1tvuxrb</bpmn:incoming>
+      <bpmn:terminateEventDefinition />
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:process id="Process_17wapx7">
+    <bpmn:startEvent id="StartEvent_1vm14bq">
+      <bpmn:outgoing>SequenceFlow_1x9e2ev</bpmn:outgoing>
+      <bpmn:messageEventDefinition />
+    </bpmn:startEvent>
+    <bpmn:task id="Task_1vnks6x" name="Перевірка на можливість голосування">
+      <bpmn:incoming>SequenceFlow_1x9e2ev</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0qrt7ej</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_1s3hxbw</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_0wxxkop">
+        <bpmn:targetRef>DataStoreReference_1lycok3</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:task id="Task_1izr7cj" name="Агрегування оновлених голосів">
+      <bpmn:incoming>SequenceFlow_0qrt7ej</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0ydhyaj</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_00vxsd9">
+        <bpmn:targetRef>DataStoreReference_1lycok3</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_05y2x8d">
+      <bpmn:incoming>SequenceFlow_1s3hxbw</bpmn:incoming>
+      <bpmn:messageEventDefinition />
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_0kft6m6">
+      <bpmn:incoming>SequenceFlow_0ydhyaj</bpmn:incoming>
+      <bpmn:messageEventDefinition />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0qrt7ej" sourceRef="Task_1vnks6x" targetRef="Task_1izr7cj">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_1s3hxbw" sourceRef="Task_1vnks6x" targetRef="EndEvent_05y2x8d">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"></bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_1x9e2ev" sourceRef="StartEvent_1vm14bq" targetRef="Task_1vnks6x" />
+    <bpmn:sequenceFlow id="SequenceFlow_0ydhyaj" sourceRef="Task_1izr7cj" targetRef="EndEvent_0kft6m6" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_0c9fjz0">
+      <bpmndi:BPMNShape id="Participant_09qxobt_di" bpmnElement="Participant_09qxobt" isHorizontal="true">
+        <dc:Bounds x="156" y="467" width="791" height="293" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_192wwaw">
+        <dc:Bounds x="206" y="622" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_0pl1zm8_di" bpmnElement="Participant_0pl1zm8" isHorizontal="true">
+        <dc:Bounds x="156" y="219" width="783" height="218" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_0jnxfm9_di" bpmnElement="Task_0jnxfm9">
+        <dc:Bounds x="292" y="600" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_0udzfix_di" bpmnElement="Task_0udzfix">
+        <dc:Bounds x="457" y="600" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_0xl7yfc_di" bpmnElement="Task_0xl7yfc">
+        <dc:Bounds x="778" y="600" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_0w1hf4x_di" bpmnElement="Task_0w1hf4x">
+        <dc:Bounds x="618" y="600" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1gh0r5k_di" bpmnElement="SequenceFlow_1gh0r5k">
+        <di:waypoint x="242" y="640" />
+        <di:waypoint x="292" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1vj514h_di" bpmnElement="SequenceFlow_1vj514h">
+        <di:waypoint x="392" y="640" />
+        <di:waypoint x="457" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0cydk8w_di" bpmnElement="SequenceFlow_0cydk8w">
+        <di:waypoint x="342" y="680" />
+        <di:waypoint x="342" y="721" />
+        <di:waypoint x="828" y="721" />
+        <di:waypoint x="828" y="680" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1w7bcyq_di" bpmnElement="SequenceFlow_1w7bcyq">
+        <di:waypoint x="557" y="640" />
+        <di:waypoint x="618" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_1vnks6x_di" bpmnElement="Task_1vnks6x">
+        <dc:Bounds x="295" y="274" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="MessageFlow_0cemi29_di" bpmnElement="MessageFlow_0cemi29">
+        <di:waypoint x="668" y="600" />
+        <di:waypoint x="668" y="448" />
+        <di:waypoint x="243" y="448" />
+        <di:waypoint x="243" y="332" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="StartEvent_0z2hli9_di" bpmnElement="StartEvent_1vm14bq">
+        <dc:Bounds x="225" y="296" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_1izr7cj_di" bpmnElement="Task_1izr7cj">
+        <dc:Bounds x="446" y="274" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStoreReference_1lycok3_di" bpmnElement="DataStoreReference_1lycok3">
+        <dc:Bounds x="392" y="126" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_0wxxkop_di" bpmnElement="DataOutputAssociation_0wxxkop">
+        <di:waypoint x="363" y="274" />
+        <di:waypoint x="406" y="176" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_00vxsd9_di" bpmnElement="DataOutputAssociation_00vxsd9">
+        <di:waypoint x="477" y="274" />
+        <di:waypoint x="429" y="176" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_1agnjoj_di" bpmnElement="Task_1agnjoj">
+        <dc:Bounds x="292" y="488" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0gcv5ly_di" bpmnElement="EndEvent_05y2x8d">
+        <dc:Bounds x="327" y="380" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1npsofb_di" bpmnElement="EndEvent_0kft6m6">
+        <dc:Bounds x="478" y="380" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0qrt7ej_di" bpmnElement="SequenceFlow_0qrt7ej">
+        <di:waypoint x="395" y="314" />
+        <di:waypoint x="446" y="314" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1s3hxbw_di" bpmnElement="SequenceFlow_1s3hxbw">
+        <di:waypoint x="345" y="354" />
+        <di:waypoint x="345" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1x9e2ev_di" bpmnElement="SequenceFlow_1x9e2ev">
+        <di:waypoint x="261" y="314" />
+        <di:waypoint x="295" y="314" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0ydhyaj_di" bpmnElement="SequenceFlow_0ydhyaj">
+        <di:waypoint x="496" y="354" />
+        <di:waypoint x="496" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_0z0hisb_di" bpmnElement="MessageFlow_0z0hisb">
+        <di:waypoint x="496" y="416" />
+        <di:waypoint x="496" y="508" />
+        <di:waypoint x="840" y="508" />
+        <di:waypoint x="840" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_11aipoi_di" bpmnElement="MessageFlow_11aipoi">
+        <di:waypoint x="345" y="416" />
+        <di:waypoint x="345" y="488" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_13c1ooo_di" bpmnElement="SequenceFlow_13c1ooo">
+        <di:waypoint x="392" y="528" />
+        <di:waypoint x="585" y="528" />
+        <di:waypoint x="778" y="617" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1tvuxrb_di" bpmnElement="SequenceFlow_1tvuxrb">
+        <di:waypoint x="873" y="601" />
+        <di:waypoint x="873" y="573" />
+        <di:waypoint x="909" y="573" />
+        <di:waypoint x="909" y="546" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1epukh1_di" bpmnElement="EndEvent_07gt73i">
+        <dc:Bounds x="891" y="510" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
