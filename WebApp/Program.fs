@@ -54,8 +54,8 @@ let errorHandler (ex : Exception) (logger : ILogger) =
 let cookieAuth (o : CookieAuthenticationOptions) =
     do
         o.Cookie.HttpOnly     <- true
-        o.Cookie.SecurePolicy <- CookieSecurePolicy.SameAsRequest
-        o.SlidingExpiration   <- true
+        o.Cookie.SecurePolicy <- CookieSecurePolicy.None
+        o.SlidingExpiration   <- false
         o.ExpireTimeSpan <- TimeSpan.FromDays 7.0
 
 let configureApp (app : IApplicationBuilder) =

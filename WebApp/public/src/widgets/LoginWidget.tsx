@@ -56,12 +56,10 @@ class LoginWidget extends React.Component<any, any> {
 
 
     onClickLogin = () => {
-        let loginData = {
+        api.login({
             login: this.state.login,
             password: this.state.password
-        }
-
-        api.login(loginData).then(x => {
+        }).then(x => {
             if ((x as any).success) {
                 window.location.href = "/"
             } else {
@@ -86,8 +84,8 @@ class LoginWidget extends React.Component<any, any> {
                                     id="login"
                                     label="Login"
                                     style={{ width: '100%'}}
-                                    value={this.state.title}
-                                    onChange={e => this.setState({ title: e.target.value })}
+                                    value={this.state.login}
+                                    onChange={e => this.setState({ login: e.target.value })}
                                     margin="normal"
                                     variant="outlined"
                                 />
@@ -97,33 +95,12 @@ class LoginWidget extends React.Component<any, any> {
                                     id="password"
                                     label="Password"
                                     style={{ width: '100%'}}
-                                    value={this.state.content}
-                                    onChange={e => this.setState({ content: e.target.value })}
+                                    value={this.state.password}
+                                    onChange={e => this.setState({ password: e.target.value })}
                                     margin="normal"
                                     variant="outlined"
                                     multiline={true}
                                 />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    id="gender"
-                                    select
-                                    label="Gender"
-                                    style={{ width: '100%'}}
-                                    value={this.state.community}
-                                    onChange={e => this.setState({ community: e.target.value })}
-                                    helperText="Select gender"
-                                    margin="normal"
-                                    variant="outlined"
-                                >
-                                    <MenuItem key={0} value={0}>
-                                        Male
-                                </MenuItem>
-                                    <MenuItem key={1} value={1}>
-                                        Female
-                                </MenuItem>
-                                </TextField>
-
                             </Grid>
                             <Grid item xs={6}>
                                 <Button 

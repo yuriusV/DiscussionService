@@ -19,6 +19,7 @@ open Newtonsoft.Json.Linq
 open System.Threading
 open DefaultApiHandler
 
+
 let createEntityHandler<'entity> () =
     let entityName = typeof<'entity>.Name
 
@@ -79,14 +80,14 @@ module AuthHandlers =
         let password = getJValue<string> jo "password"
         let checkRes = AuthUtil.loginWithCredentials context login password
         if checkRes then
-            outputJson {|success = true|} next context
+            outputJson Res.success next context
         else
-            outputJson {|success = false|} next context
+            outputJson Res.fail next context
 
     let makeLogout next context = 
         let res = AuthUtil.logout context
-        if res then outputJson {|success = true|} next context
-        else outputJson {|success = false|} next context
+        if res then outputJson Res.success next context
+        else outputJson Res.fail next context
 
     let makeRegister next (context: HttpContext) =
         let body = context.ReadBodyFromRequest().GetAwaiter().GetResult()
@@ -97,9 +98,9 @@ module AuthHandlers =
         let fullName = getJValue<string> jo "fullName"
         let checkRes = AuthUtil.register context fullName login password
         if checkRes then
-            outputJson {|success = true|} next context
+            outputJson Res.success next context
         else
-            outputJson {|success = false|} next context
+            outputJson Res.fail next context
 
 let apiHandler: HttpHandler = 
     choose [

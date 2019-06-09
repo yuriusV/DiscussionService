@@ -400,6 +400,7 @@ values (@login, @fullName, @login, @hashedPassword, @registerTime, @registerTime
     let getLoginData token =
         sqlToOutput (Query """
             select
+    MAX("Id") as "Id",
 	MAX("Name") as "Name",
 	MAX("FullName") as "FullName",
 	MAX("Login") as "Login",

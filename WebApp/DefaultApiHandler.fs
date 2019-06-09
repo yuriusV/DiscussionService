@@ -4,9 +4,6 @@ open Microsoft.AspNetCore.Http
 
 open Giraffe
 open Giraffe.HttpHandlers
-open Giraffe.Middleware
-open Giraffe.Razor.HttpHandlers
-open Giraffe.Razor.Middleware
 open Newtonsoft.Json
 
 open DataAccess
@@ -23,6 +20,16 @@ open DataAccessBase
 open DataAccess
 open DataAccess
 open System
+
+module Res =
+    type Response = {
+        success: bool;
+        message: string
+    }
+
+    let success = {success = true; message = ""}
+    let fail = {success = false; message = ""}
+    let failMessage message = {success = false; message = message}
 
 let jsonResponse dataGiver mapper next context =
     let data = dataGiver (mapper context)
@@ -143,13 +150,13 @@ let defaultApiHandler: HttpHandler =
         route "/getPollInfo/%i"
 
         // Mofify
-        POST >=> route "/createPost" >=> Handlers.createPostHandler >=> outputJson {|ok = true|}
+        POST >=> route "/createPost" >=> Handlers.createPostHandler >=> outputJson Res.success
         routef "/deletePost/%i" (fun i -> 
-            jsonResponse LogicQueries.deletePost (fun s -> i)) >=> outputJson {|ok = true|}
-        POST >=> route "/votePost" >=> Handlers.votePostHanler >=> outputJson {|ok = true|}
-        POST >=> route "/voteComment" >=> Handlers.voteCommentHanler >=> outputJson {|ok = true|}
+            jsonResponse LogicQueries.deletePost (fun s -> i)) >=> outputJson Res.success
+        POST >=> route "/votePost" >=> Handlers.votePostHanler >=> outputJson Res.success
+        POST >=> route "/voteComment" >=> Handlers.voteCommentHanler >=> outputJson Res.success
         POST >=> route "/votePoll" // TODO
-        POST >=> route "/makeComment" >=> Handlers.makeCommentHandler >=> outputJson {|ok = true|}
+        POST >=> route "/makeComment" >=> Handlers.makeCommentHandler >=> outputJson Res.success
 
         // Communities
         route "/enterCommunity"

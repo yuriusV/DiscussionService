@@ -49,7 +49,7 @@ const login = data => fetch('/login', {
         'Content-Type': 'application/json'
     },
     body: JSON.stringify(data)
-})
+}).then(x => x.json()).then(modelLogger)
 
 
 export default {
