@@ -60,7 +60,7 @@ class RecipeReviewCard extends React.Component<any, any> {
             postId: this.props.model.id,
             vote: 1
         }).then(x => {
-            this.setState(state => ({ likes: state.likes + 1 }))
+            this.setState({likes: x.likes, dislikes: x.dislikes, myVote: x.user})
         })
 
     }
@@ -70,7 +70,7 @@ class RecipeReviewCard extends React.Component<any, any> {
             postId: this.props.model.id,
             vote: -1
         }).then(x => {
-            this.setState(state => ({ dislikes: state.dislikes + 1 }))
+            this.setState({likes: x.likes, dislikes: x.dislikes, myVote: x.user})
         })
     }
 
@@ -79,9 +79,9 @@ class RecipeReviewCard extends React.Component<any, any> {
     }
 
     commentPush = (content) => {
-        api.makeCommment({
+        api.makeComment({
             parentCommentId: 0,
-            content: "comment", //content, Kostyle
+            content: content,
             postId: this.props.model.id
         }).then(x => {
             location.reload()
@@ -140,7 +140,10 @@ class RecipeReviewCard extends React.Component<any, any> {
 
                 <Collapse in={this.state.commentExpanded} timeout="auto" unmountOnExit>
                     <CardContent>
-                            <TextEditor onSave={this.commentPush} onCancel={() => this.setState({commentExpanded: false})} />
+                            <TextEditor 
+                            content=''
+                            onSave={this.commentPush} 
+                            onCancel={() => this.setState({commentExpanded: false})} />
                     </CardContent>
                 </Collapse>
             </Card>

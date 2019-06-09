@@ -17,16 +17,33 @@ let getPasswordHash = id
 // Go
 let generateSessionToken() = System.Convert.ToBase64String(System.Guid.NewGuid().ToByteArray())
 
-let putToken (context: HttpContext) (token: string) = 
-    context.Response.Cookies.Append("Asp.Net", token)
 
-let getToken (context: HttpContext) =
-    let mutable value: string = ""
-    context.Request.Cookies.TryGetValue("Asp.Net", &value) |> ignore
-    value
+module Cookies = 
+    type CookieData = {
+        fullName: string;
+        name: string;
+        imageUrl: string;
+        token: string
+    }
+    let putToken (context: HttpContext) (cookie: CookieData) = 
+        context.Response.Cookies.Append("Asp.Net", cookie.token)
+        context.Response.Cookies.Append("fullName", cookie.fullName)
+        context.Response.Cookies.Append("name", cookie.name)
+        context.Response.Cookies.Append("imageUrl", cookie.imageUrl)
+
+    let getToken (context: HttpContext) =
+        let mutable value: string = ""
+        context.Request.Cookies.TryGetValue("Asp.Net", &value) |> ignore
+        value
+
+    let removeToken (context: HttpContext) = 
+        context.Response.Cookies.Delete("Asp.Net")
+        context.Response.Cookies.Delete("fullName")
+        context.Response.Cookies.Delete("name")
+        context.Response.Cookies.Delete("imageUrl")
 
 let getCurrentUserId (context: HttpContext) = 
-    let userToken = getToken context
+    let userToken = Cookies.getToken context
     if not (isNull userToken) then
         let dbRes = AuthQueries.getLoginData userToken
         if ((getSingleRowValue<int32> dbRes "Exists") = 1) 
@@ -44,7 +61,7 @@ let register (context: HttpContext) fullName login password =
     if (getSingleRowValue<int32> isExists "Count") <> int32(0) then false
     else
         let loginData = AuthQueries.register fullName login (getPasswordHash password) token time
-        putToken context token
+        Cookies.putToken context {fullName = fullName; name = login; imageUrl = ""; token=token}
         true
 
 
@@ -55,8 +72,14 @@ let loginWithCredentials (context: HttpContext) login password =
         let userId = getSingleRowValue<int64> data "Id"
         let token = generateSessionToken()
         AuthQueries.setTokenToUser userId token |> ignore
-        
-        putToken context token
+
+        Cookies.putToken context {
+            fullName = (getSingleRowValue<string> data "FullName");
+            name = login;
+            imageUrl = "";
+            token = token
+        }
+
         true
     else false
 
@@ -64,7 +87,7 @@ let loginWithCredentials (context: HttpContext) login password =
 let logout (context: HttpContext) =
     let userId = getCurrentUserId context
     if userId <> 0 then
-        AuthQueries.logout (context.User.FindFirst(fun x -> x.Subject.Name = "token").Value) |> ignore
-        putToken context ""
+        AuthQueries.logout (Cookies.getToken context) |> ignore
+        Cookies.removeToken context
         true
     else false

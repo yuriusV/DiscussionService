@@ -39,7 +39,9 @@ const post = path => data => fetch('/api/v1/' + path, {
         'Content-Type': 'application/json'
     },
     body: JSON.stringify(data)
-}).then(x => x.json()).then(processResponse).then(modelLogger)
+}).then(x => x.json()).then(modelLogger)
+
+const logout = () => fetch('/logout').then(x => x.json()).then(modelLogger)
 
 // Custom queries
 const login = data => fetch('/login', {
@@ -66,12 +68,14 @@ export default {
     getCurrentUserCommunities: request('getCurrentUserCommunities'),
     getListCommunities: request('getListCommunities'),
     getListUsers: request('getListUsers'),
+    searchInSite: request('searchInSite'),
     // post
     createPost: post('createPost'),
     deletePost: post('deletePost'),
     votePost: post('votePost'),
     voteComment: post('voteComment'),
     votePoll: post('votePoll'),
-    makeCommment: post('makeComment'),
-    login
+    makeComment: post('makeComment'),
+    login,
+    logout
 }

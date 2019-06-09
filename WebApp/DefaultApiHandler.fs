@@ -69,7 +69,7 @@ module Handlers =
             let time = DateTime.Now
             let content = getJValue<string> jo "content"
             //let pollData = getJValue<>
-            LogicQueries.createPost (getCurrentUserId context) communityId "temp" title time content |> ignore
+            LogicQueries.Posts.createPost (getCurrentUserId context) communityId "temp" title time content |> ignore
             return! next context
         }
 
@@ -81,8 +81,8 @@ module Handlers =
             let postId = getJValue<int> jo "postId"
             let vote = getJValue<int> jo "vote"
             let userId = getCurrentUserId context
-            LogicQueries.votePost userId postId vote |> ignore
-            return! next context
+            let voteStats = Array.head (LogicQueries.Posts.votePost userId postId vote)
+            return! json voteStats next context
         }
 
     let voteCommentHanler next (context: HttpContext) = 
@@ -93,8 +93,8 @@ module Handlers =
             let commentId = getJValue<int> jo "commentId"
             let vote = getJValue<int> jo "vote"
             let userId = getCurrentUserId context
-            LogicQueries.voteComment userId commentId vote |> ignore
-            return! next context
+            let voteStats = Array.head (LogicQueries.Comments.voteComment userId commentId vote)
+            return! json voteStats next context
         }
 
 
@@ -107,9 +107,14 @@ module Handlers =
             let content = getJValue<string> jo "content"
             let postId = getJValue<int> jo "postId"
             let userId = getCurrentUserId context
-            LogicQueries.makeComment userId postId parentCommentId content DateTime.Now |> ignore
+            LogicQueries.Comments.makeComment userId postId parentCommentId content DateTime.Now |> ignore
             return! next context
         }
+    
+    let getCurrentUserInfo next (context: HttpContext) = 
+        (getCurrentUserId context
+        |> LogicQueries.getUserCardInfoById
+        |> json) next context
 
     let getUserHeader next context =
         let id = getCurrentUserId context
@@ -146,13 +151,13 @@ let defaultApiHandler: HttpHandler =
             jsonResponse (fun x -> LogicQueries.getListCommunities 0 100) (ignore)
         route "/getListUsers" >=> 
             jsonResponse (fun x -> LogicQueries.getListUsers 0 100) ignore
-    
+        route "/getCurrentUserInfo" >=> Handlers.getCurrentUserInfo
         route "/getPollInfo/%i"
 
         // Mofify
         POST >=> route "/createPost" >=> Handlers.createPostHandler >=> outputJson Res.success
         routef "/deletePost/%i" (fun i -> 
-            jsonResponse LogicQueries.deletePost (fun s -> i)) >=> outputJson Res.success
+            jsonResponse LogicQueries.Posts.deletePost (fun s -> i)) >=> outputJson Res.success
         POST >=> route "/votePost" >=> Handlers.votePostHanler >=> outputJson Res.success
         POST >=> route "/voteComment" >=> Handlers.voteCommentHanler >=> outputJson Res.success
         POST >=> route "/votePoll" // TODO

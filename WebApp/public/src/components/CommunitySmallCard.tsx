@@ -67,6 +67,7 @@ class RecipeReviewCard extends React.Component<any, any> {
             }
             title={this.props.model.name}
             subheader={this.props.model.countUsers + " users, " + this.props.model.countPosts + " posts"}
+            onClick={() => {location.href = "/community/" + this.props.model.url}}
         />
 
         <CardContent>

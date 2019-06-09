@@ -4,7 +4,7 @@ import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
-import {Typography, Grid, ListItem, Divider, List} from '@material-ui/core';
+import {Typography, Grid, ListItem, Divider, List, Link} from '@material-ui/core';
 
 import MuiExpansionPanel from '@material-ui/core/ExpansionPanel';
 import MuiExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -100,21 +100,21 @@ class OneComment extends React.Component<any, any> {
     state = Object.assign({}, this.props.model, { expanded: false })
 
     makeLike = () => {
-        api.votePost({
-            postId: this.props.model.id,
+        api.voteComment({
+            commentId: this.props.model.id,
             vote: 1
         }).then(x => {
-            this.setState(state => ({likes: state.likes + 1}))
+            this.setState({likes: x.likes, dislikes: x.dislikes, myVote: x.user})
         })
   
     }
 
     makeDislike = () => {
-        api.votePost({
-            postId: this.props.model.id,
+        api.voteComment({
+            commentId: this.props.model.id,
             vote: -1
         }).then(x => {
-            this.setState(state => ({dislikes: state.dislikes + 1}))
+            this.setState({likes: x.likes, dislikes: x.dislikes, myVote: x.user})
         })
     }
 
@@ -125,9 +125,9 @@ class OneComment extends React.Component<any, any> {
     }
 
     onReplySave = (content) => {
-        api.makeCommment({
+        api.makeComment({
             parentCommentId: this.props.model.id,
-            content: "comment", //content, Kostyle
+            content: content,
             postId: this.props.model.postId
         }).then(x => {
             location.reload()
@@ -143,7 +143,7 @@ class OneComment extends React.Component<any, any> {
         const { classes } = this.props;
 
         return ([
-            <div>
+            <div style={{width: '100%'}}>
                 
 
             <ExpansionPanel
@@ -153,7 +153,9 @@ class OneComment extends React.Component<any, any> {
                 <ExpansionPanelSummary>
                     <Grid container>
                         <Grid item xs={12}>
-                        <span><b>{this.props.model.author.name}</b></span>
+                        <Link underline='none' style={{color: 'black'}} href={'/user/' + this.props.model.author.url}>
+                            <b>{this.props.model.author.name}
+                            </b></Link>
                         <span>&nbsp;&nbsp;&nbsp;&nbsp;{new Date(this.props.model.time).toLocaleTimeString()}</span>
                         <br/>
                         </Grid>

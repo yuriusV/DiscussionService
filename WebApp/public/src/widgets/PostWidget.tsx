@@ -7,6 +7,7 @@ import PostLong from '../components/PostLong'
 import CommentTree from '../components/CommentTree'
 import api from '../commonApi'
 import Poll from 'react-polls';
+import { makeCommentTree } from '../commentLogic'
 
 const post = (data as any).openedPost
 
@@ -50,7 +51,7 @@ class PostWidget extends React.Component<any, any> {
                 <Grid item xs={1}/>
                 <Grid item xs={1}/>
                 <Grid item xs={10}>
-                    <CommentTree comments={this.state.comments}/>
+                    <CommentTree comments={makeCommentTree(this.state.comments)}/>
                 </Grid>
             </Grid>
         )

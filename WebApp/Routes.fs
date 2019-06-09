@@ -125,7 +125,7 @@ let webApp: HttpHandler =
         
         POST >=> route "/login" >=> AuthHandlers.makeLogin
         POST >=> route "/register" >=> AuthHandlers.makeRegister
-        POST >=> route "/logout" >=> AuthHandlers.makeLogout
+        GET >=> route "/logout" >=> AuthHandlers.makeLogout
 
         subRoute "/api" apiHandler
         setStatusCode 404 >=> text "Not Found" ]

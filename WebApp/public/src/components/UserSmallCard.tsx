@@ -66,6 +66,7 @@ class RecipeReviewCard extends React.Component<any, any> {
                 </IconButton>
             }
             title={this.props.model.name}
+            onClick={() => {location.href = "/user/" + this.props.model.url}}
         />
 
         <CardContent>

@@ -15,6 +15,7 @@ open DataAccessBase
 open Tx
 open Tx
 open Sql
+open Tx
 
 let createConnectionString user pass db = 
     sprintf @"User ID=%s;Password=%s;Host=localhost;Port=5432;Database=%s" user pass db
@@ -51,6 +52,16 @@ let readMapFromDataRecord (dataRecord: #IDataRecord) =
 let sqlToOutput sql parameters = 
     use reader = execReader sql parameters
     reader |> Seq.ofDataReader |>  Seq.map readMapFromDataRecord |> Seq.toArray
+
+let getSingleRowValue<'t> (a: Map<string, obj>[]) key =
+    Map.find key (Array.head a) :?> 't
+
+
+let (?) m key = 
+    Map.find key m
+
+let (--) a key =
+    Map.find key (Array.head a)
 
 module CommonQueries =
 
@@ -169,7 +180,7 @@ module LogicQueries =
             select
                 "Id" as id,
                 "Name" as title,
-                '/coomunities/' || "UrlName" as url,
+                '/communities/' || "UrlName" as url,
                 'community' as "type"
             from "Community"
             where "Name" = @searchText
@@ -237,7 +248,7 @@ module LogicQueries =
     where c."Id" = @communityId
                 """) [param("communityId", communityId)]
 
-    let getUserCardInfo userId = 
+    let getUserCardInfo (userName: string) = 
         sqlToOutput (Query """
                    select
             	u."Id" as id,
@@ -249,6 +260,21 @@ module LogicQueries =
             	u."Name" as nick
             from "User" u
             where u."Name" = @user
+                """) [param("user", userName)]
+
+    let getUserCardInfoById userId = 
+        sqlToOutput (Query """
+                   select
+            	u."Id" as id,
+            	u."FullName" as "name",
+            	u."UrlPhoto" as "urlPhoto",
+                u."Name" as "login",
+            	(select count(1) from "Comment" where "AuthorId" = 1) as "countComments",
+            	(select count(1) from "PostVote" where "PostVote"."UserId" = u."Id" and "Vote" > 0) as pluses,
+            	(select count(1) from "PostVote" where "PostVote"."UserId" = u."Id" and "Vote" < 0) as minuses,
+            	u."Name" as nick
+            from "User" u
+            where u."Id" = @user
                 """) [param("user", userId)]
 
 
@@ -343,40 +369,82 @@ where c."PostId" = @postId
             from "User" u
         """) []
 
-    let createPost currentUserId communityId urlName title time content =
-        execNonQuery (Query """
-            insert into "Post" ("AuthorId", "CommunityId", "UrlName", "Title", "CreatedOn", "Content")
-            values ( @currentUserId, @communityId, @urlName, @title, @createdOn, @postContent)
-        """) [param("currentUserId", currentUserId); 
-            param("communityId", communityId); param("urlName", urlName); 
-            param("title", title); param("createdOn", time); param("postContent", content)]
+    module Posts =
+        let createPost currentUserId communityId urlName title time content =
+            execNonQuery (Query """
+                insert into "Post" ("AuthorId", "CommunityId", "UrlName", "Title", "CreatedOn", "Content")
+                values ( @currentUserId, @communityId, @urlName, @title, @createdOn, @postContent)
+            """) [param("currentUserId", currentUserId); 
+                param("communityId", communityId); param("urlName", urlName); 
+                param("title", title); param("createdOn", time); param("postContent", content)]
 
-    let deletePost currentUserId postId = 
-        execNonQuery (Query """delete from "Post" where "Id" = @id""") [param("id", postId)]
+        let deletePost currentUserId postId = 
+            execNonQuery (Query """delete from "Post" where "Id" = @id""") [param("id", postId)]
+
+        let getCanVotePost currentUserId postId = 
+            let result = (sqlToOutput (Query """ 
+            select count(1) as "Can" from "UserInCommunity"
+                inner join "Post" p on p."CommunityId" = "UserInCommunity"."CommunityId"
+                where "UserId" = @userId
+                and p."Id" = @postId
+            """) [param("postId", postId); param("userId", currentUserId)])
+            (getSingleRowValue<int64> result "Can") > 0L
+
+        let votePost currentUserId postId vote =
+            let success = getCanVotePost currentUserId postId
+
+            if success then
+                execNonQuery (Query """ delete from "PostVote" where "UserId" = @userId and "PostId" = @postId""") [param("userId", currentUserId);
+                    param("postId", postId)] |> ignore
+                execNonQuery (Query """ insert into "PostVote" ("UserId", "PostId", "Vote") values (@userId, @postId, @vote)  """) [param("userId", currentUserId);
+                    param("postId", postId); param("vote", vote)] |> ignore
+            else ()
+
+            sqlToOutput (Query """
+                select
+                    (select count(*) from "PostVote" where "PostId" = @postId and "Vote" > 0) "likes",
+                    (select count(*) from "PostVote" where "PostId" = @postId and "Vote" < 0) "dislikes",
+                    (select sum("Vote") from "PostVote" where "PostId" = @postId and "UserId" = @userId) "user"
+            """) [param("postId", postId); param("userId", currentUserId)]
 
 
-    let votePost currentUserId postId vote =
-        execNonQuery (Query """ delete from "PostVote" where "UserId" = @userId and "PostId" = @postId""") [param("userId", currentUserId);
-            param("postId", postId)] |> ignore
-        execNonQuery (Query """ insert into "PostVote" ("UserId", "PostId", "Vote") values (@userId, @postId, @vote)  """) [param("userId", currentUserId);
-            param("postId", postId); param("vote", vote)]
+    module Comments = 
+        let getCanVoteComment currentUserId commentId = 
+            let result = (sqlToOutput (Query """ select count(c."Id") as "Can"
+                from "Comment" c
+                inner join "Post" pic on pic."Id" = c."PostId"
+                where c."Id" = @commentId
+                and pic."CommunityId" in (select "Id" from "UserInCommunity" where "UserId" = @userId)
+                 """) [param("commentId", commentId); param("userId", currentUserId)])
+            (getSingleRowValue<int64> result "Can") > 0L
 
-    let voteComment currentUserId commentId vote =
-        execNonQuery (Query """ delete from "CommentVote" where "UserId" = @userId and "CommentId" = @commentId""") [param("userId", currentUserId);
-            param("commentId", commentId)] |> ignore
-        execNonQuery (Query """ insert into "CommentVote" ("UserId", "CommentId", "Vote") values (@userId, @commentId, @vote)  """) [param("userId", currentUserId);
-            param("commentId", commentId); param("vote", vote)]
+        let voteComment currentUserId commentId vote =
+            let canComment = getCanVoteComment currentUserId commentId
+            let success = canComment
+            if canComment then
+                execNonQuery (Query """ delete from "CommentVote" where "UserId" = @userId and "CommentId" = @commentId""") [param("userId", currentUserId);
+                    param("commentId", commentId)] |> ignore
+                execNonQuery (Query """ insert into "CommentVote" ("UserId", "CommentId", "Vote") values (@userId, @commentId, @vote)  """) [param("userId", currentUserId);
+                    param("commentId", commentId); param("vote", vote)] |> ignore
+            else ()
+
+            sqlToOutput (Query """
+                select
+                    (select count(*) from "CommentVote" where "CommentId" = @commentId and "Vote" > 0) "likes",
+                    (select count(*) from "CommentVote" where "CommentId" = @commentId and "Vote" < 0) "dislikes",
+                    (select sum("Vote") from "CommentVote" where "CommentId" = @commentId and "UserId" = @userId) "user"
+            """) [param("commentId", commentId); param("userId", currentUserId)]
 
 
-    let makeComment userId postId parentCommentId content time =
-        execNonQuery (Query """
-            insert into "Comment" ("ParentId", "PostId", "Content", "AuthorId", "CreatedOn")
-values (@parentId, @postId, @dataContent, @authorId, @createdOn)
-        """) [param("parentId", parentCommentId);
-            param("postId", postId);
-            param("authorId", userId); 
-            param("dataContent", content); 
-            param("createdOn", time)]
+        let makeComment userId postId parentCommentId content time =
+            execNonQuery (Query """
+                insert into "Comment" ("ParentId", "PostId", "Content", "AuthorId", "CreatedOn")
+    values (@parentId, @postId, @dataContent, @authorId, @createdOn)
+            """) [param("parentId", parentCommentId);
+                param("postId", postId);
+                param("authorId", userId); 
+                param("dataContent", content); 
+                param("createdOn", time)]
 
 module AuthQueries =
 
@@ -424,6 +492,7 @@ where "SessionToken" = @token
         sqlToOutput (Query """
             select
 	MAX("Name") as "Name",
+    MAX("FullName") as "FullName",
 	MAX("Id") as "Id",
 	MAX("Login") as "Login",
 	CASE WHEN MAX("Login") IS NULL THEN 0 ELSE 1 END AS "Exists"
@@ -438,5 +507,3 @@ where "Login" = @login
             where "Id" = @userId
         """) [param("userId", userId); param("token", token)]
 
-let getSingleRowValue<'t> (a: Map<string, obj>[]) key =
-    Map.find key (Array.head a) :?> 't
