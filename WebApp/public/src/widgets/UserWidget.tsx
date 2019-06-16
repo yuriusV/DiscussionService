@@ -65,6 +65,10 @@ class PostWidget extends React.Component<any, any> {
         location.href = "/newPost"
     }
 
+    createCommunityAction = () => {
+        location.href = "/newCommunity"
+    }
+
     getUserInfoCard = (state) => {
         return (
             <Paper style={{width: '100%', padding: '30px'}}>
@@ -74,37 +78,43 @@ class PostWidget extends React.Component<any, any> {
                         <Typography><h2><b>{state.nick}</b></h2></Typography>
                     </Grid>
                     <Grid item xs={6}>
-                        <Typography><b>Name</b> {state.name}</Typography>
-                        <Typography><b>Communities</b> {this.getCommunities(state.communities)}</Typography>
+                        <Typography><b>Ім'я</b> {state.name}</Typography>
+                        <Typography><b>Спільноти</b> {this.getCommunities(state.communities)}</Typography>
                     </Grid>
                     <Grid item xs={6}>
-                        <Button onClick={this.createPostAction}>Create post</Button>
-                        
+                        <List>
+                            <ListItem>
+                                <Button onClick={this.createPostAction}>Створити пост</Button>
+                            </ListItem>
+                            <ListItem>
+                                <Button onClick={this.createCommunityAction}>Створити спільноту</Button>
+                            </ListItem>
+                        </List>
                     </Grid>
 
                     <Grid item xs={12}>
                         <List>
                             <ListItem>
                                 <ListItemText>
-                                    <b>Pluses</b> {state.pluses}
+                                    <b>Плюсів</b> {state.pluses}
                                 </ListItemText>
                             </ListItem>
 
                             <ListItem>
                                 <ListItemText>
-                                    <b>Minuses</b> {state.minuses}
+                                    <b>Мінусів</b> {state.minuses}
                                 </ListItemText>
                             </ListItem>
 
                             <ListItem>
                                 <ListItemText>
-                                    <b>Posts</b> {state.countPosts}
+                                    <b>Постів</b> {state.countPosts}
                                 </ListItemText>
                             </ListItem>
 
                             <ListItem>
                                 <ListItemText>
-                                    <b>Comments</b> {state.countComments}
+                                    <b>Коментарів</b> {state.countComments}
                                 </ListItemText>
                             </ListItem>
                         </List>

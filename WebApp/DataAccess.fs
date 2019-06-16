@@ -10,6 +10,8 @@ open System.Data
 open System.Configuration
 open System.Text
 
+open Constants
+
 open Models
 open DataAccessBase
 open Tx
@@ -19,6 +21,8 @@ open Tx
 open LinqToDB.Linq
 open Tx
 open System.Reflection.Metadata.Ecma335
+open Tx
+open Sql
 open Tx
 
 let createConnectionString user pass db = 
@@ -34,7 +38,9 @@ let connectionManager = Sql.withNewConnection(openConnection)
 let sql = SqlWrapper(connectionManager)
 let exec sqlCommand = sql.ExecNonQuery sqlCommand [] |> ignore
 let param = Sql.Parameter.make
-let execReader (qry : StringBuilder) = sql.ExecReader (qry.ToString())
+let execReader (qry : StringBuilder) = 
+    Console.WriteLine(qry.ToString())
+    sql.ExecReader (qry.ToString())
 let execReaderString qry = sql.ExecReader qry
 let execNonQueryString s = sql.ExecNonQuery s
 let execNonQuery (qry : StringBuilder) = sql.ExecNonQuery (qry.ToString())
@@ -226,43 +232,6 @@ module LogicQueries =
             inner join "User" author on author."Id" = "Post"."AuthorId"
            """) [param("userId", userId)]
 
-    let getCommuintyPageCardInfo communityId = 
-        sqlToMap (Query """
-            select
-            c."Id" as id,
-            c."Name" as "name",
-            c."UrlName" as url,
-            c."UrlPhoto" as "urlPhoto",
-            (select count(1) from "UserInCommunity" where "CommunityId" = c."Id") as "countUsers",
-            (select count(1) from "Post" where "CommunityId" = c."Id") as "countPosts"
-            from "Community" c
-            where c."UrlName" = @community
-            """) [param("community", communityId)]
-
-    let getCommunityPosts communityId = 
-        sqlToMap (Query """
-                    select
-	"Post"."Id" as id,
-	"Post"."Title" as title,
-	"Post"."UrlName" as url,
-	author."Id" as "author.id",
-	author."Name" as "author.url",
-	author."FullName" as "author.name",
-	author."UrlPhoto" as "author.urlPhoto",
-	c."UrlName" as "community.url",
-	c."Name" as "community.name",
-	c."UrlPhoto" as "community.urlPhoto",
-	"Post"."CreatedOn" as "time",
-	"Post"."Content" as "content",
-	(select count(1) from "Comment" where "PostId" = "Post"."Id") as "countComments",
-	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" > 0) as likes,
-	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" < 0) as dislikes
-    from "Post"
-    inner join "Community" c on "Post"."CommunityId" = c."Id"
-    inner join "User" author on author."Id" = "Post"."AuthorId"
-    where c."Id" = @communityId
-                """) [param("communityId", communityId)]
-
     let getUserCardInfo (userName: string) = 
         sqlToMap (Query """
                    select
@@ -362,17 +331,6 @@ inner join "User" author on author."Id" = c."AuthorId"
 where c."PostId" = @postId
                 """) [param("postId", postId)]
 
-    let getListCommunities offset limit = 
-        sqlToMap (Query """
-        select
-        	c."Id" as id,
-        	c."UrlName" as "url",
-        	c."Name" as "name",
-        	c."UrlPhoto" as "urlPhoto",
-        	(select count(1) from "Post" where "CommunityId" = c."Id") as "countPosts",
-        	(select count(1) from "UserInCommunity" uc where uc."CommunityId" = c."Id") as "countUsers"
-        from "Community" c
-        """) []
 
     let getListUsers offset limit = 
         sqlToMap (Query """
@@ -460,6 +418,129 @@ where c."PostId" = @postId
                 param("authorId", userId); 
                 param("dataContent", content); 
                 param("createdOn", time)]
+
+
+    module Communities = 
+        let getListCommunities forUserId offset limit =
+            sqlToMap (Query """
+            select
+            	c."Id" as id,
+            	c."UrlName" as "url",
+            	c."Name" as "name",
+            	c."UrlPhoto" as "urlPhoto",
+            	(select count(1) from "Post" where "CommunityId" = c."Id") as "countPosts",
+            	(select count(1) from "UserInCommunity" uc where uc."CommunityId" = c."Id") as "countUsers",
+                (select count(1) from "UserInCommunity" uc where uc."CommunityId" = c."Id" and uc."UserId" = @user) as "isMember"
+            from "Community" c
+            """) [param("user", forUserId)]
+
+        let getCommuintyPageCardInfo communityId forUserId = 
+            sqlToMap (Query """
+                select
+                c."Id" as id,
+                c."Name" as "name",
+                c."UrlName" as url,
+                c."UrlPhoto" as "urlPhoto",
+                (select count(1) from "UserInCommunity" where "CommunityId" = c."Id") as "countUsers",
+                (select count(1) from "Post" where "CommunityId" = c."Id") as "countPosts",
+                (select count(1) from "UserInCommunity" uc where uc."CommunityId" = c."Id" and uc."UserId" = @user) as "isMember"
+                from "Community" c
+                where c."UrlName" = @community
+                """) [param("community", communityId); param("user", forUserId)]
+
+        let getCommunityPosts communityId = 
+            sqlToMap (Query """
+                        select
+    	"Post"."Id" as id,
+    	"Post"."Title" as title,
+    	"Post"."UrlName" as url,
+    	author."Id" as "author.id",
+    	author."Name" as "author.url",
+    	author."FullName" as "author.name",
+    	author."UrlPhoto" as "author.urlPhoto",
+    	c."UrlName" as "community.url",
+    	c."Name" as "community.name",
+    	c."UrlPhoto" as "community.urlPhoto",
+    	"Post"."CreatedOn" as "time",
+    	"Post"."Content" as "content",
+    	(select count(1) from "Comment" where "PostId" = "Post"."Id") as "countComments",
+    	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" > 0) as likes,
+    	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" < 0) as dislikes
+        from "Post"
+        inner join "Community" c on "Post"."CommunityId" = c."Id"
+        inner join "User" author on author."Id" = "Post"."AuthorId"
+        where c."Id" = @communityId
+                    """) [param("communityId", communityId)]
+
+
+        let enterCommunity userId communityId =
+            let isInCommunity = ((sqlRead """ 
+                select count(1) as "Count" from "UserInCommunity" 
+                where "UserId" = @user 
+                    and "CommunityId" = @community """ 
+                    [param("user", userId); 
+                        param("community", communityId)]).[0]?Count :?> int64) > 0L
+            
+            if not isInCommunity then (
+                execNonQueryString """
+                    insert into "UserInCommunity" ("UserId", "CommunityId") values
+                    (@user, @community)
+                """ [param("user", userId); 
+                        param("community", communityId)] |> ignore
+                true
+            )
+            else false
+
+        let exitCommunity userId communityId =
+             execNonQueryString """
+                    delete from "UserInCommunity" where
+                    "UserId" = @user and "CommunityId" = @community
+                """ [
+                        param("user", userId); 
+                        param("community", communityId)] |> ignore
+
+        let createCommunity creatorId name url description =
+            let isExists = (((sqlRead """ 
+                select count(1) as "Count" from "Community"
+                where "UrlName" = @community""" 
+                    [param("community", url)]).[0]?Count :?> int64) > 0L)
+
+            if isExists then 0L
+            else
+                let id = (sqlRead """
+                    insert into "Community" ("Name", "UrlName", "Description") values
+                    (@name, @url, @desc) returning "Id"
+                """ [param("name", name); param("url", url); param("desc", description)]).[0]?Id :?> int64
+
+                execNonQueryString """
+                    insert into "UserInCommunity" ("UserId", "CommunityId", "RoleId") values
+                    (@user, @community, @role)
+                """ [
+                    param("user", creatorId); 
+                    param("community", id); 
+                    param("role", Constants.communityAdmin)] |> ignore
+                id
+
+        let deleteCommunity userId communityId =
+            let isCreator = (((sqlRead """ 
+                select count(1) as "Count" from "UserInCommunity" 
+                where "CommunityId" = @community
+                    and "UserId" = @user
+                    and "RoleId" = @adminRole
+                """ 
+                    [param("community", communityId); 
+                        param("user", userId);
+                        param("adminRole", Constants.communityAdmin)]).[0]?Count :?> int32) > 0)
+            
+            if not isCreator then false
+            else
+                execNonQueryString """
+                    delete from "Community" where "Id" = @community
+                """ [param("community", communityId)] |> ignore
+
+                true
+
+            
     
     module Polls = 
 

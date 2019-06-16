@@ -30,7 +30,10 @@ const request = path => (x = null) =>
     .then(x => x.json())
     .then(processResponse)
     .then(modelLogger)
-
+const requestScalar = path => (x = null) =>
+    get(path + (!!x ? ('/' + x) : ''))
+    .then(x => x.json())
+    .then(modelLogger)
 
 const post = path => data => fetch('/api/v1/' + path, {
     method: 'POST',
@@ -58,15 +61,12 @@ export default {
     currentUserHeader: request('currentUserHeader'),
     getCurrentUserInfo: request('getCurrentUserInfo'),
     getUserFeed: request('getUserFeed'),
-    getCommuintyPageCardInfo: request('getCommuintyPageCardInfo'),
-    getCommunityPosts: request('getCommunityPosts'),
     getUserCardInfo: request('getUserCardInfo'),
     getUserPosts: request('getUserPosts'),
     getPostData: request('getPostData'),
     getPostComments: request('getPostComments'),
     getUserCommunities: request('getUserCommunities'),
     getCurrentUserCommunities: request('getCurrentUserCommunities'),
-    getListCommunities: request('getListCommunities'),
     getListUsers: request('getListUsers'),
     searchInSite: request('searchInSite'),
     // post
@@ -81,5 +81,12 @@ export default {
     // polls
     loadPollsData: request('loadPollsData'),
     loadPollData: request('loadPollData'),
-    makePollChoice: post('makePollChoice')
+    makePollChoice: post('makePollChoice'),
+    //communities
+    enterCommunity: requestScalar('enterCommunity'),
+    exitCommunity: requestScalar('exitCommunity'),
+    getCommuintyPageCardInfo: request('getCommuintyPageCardInfo'),
+    getCommunityPosts: request('getCommunityPosts'),
+    getListCommunities: request('getListCommunities'),
+    createCommunity: post('createCommunity')
 }

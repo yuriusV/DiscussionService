@@ -33,10 +33,23 @@ class IndexWidget extends React.Component<any, any> {
         })
     }
 
+    onCommunityEntry = communityId => () => {
+        api.enterCommunity(communityId).then(x => location.reload())
+    }
+
+    onCommunityGoAway = communityId => () => {
+        api.exitCommunity(communityId).then(x => location.reload())
+    }
+
     getCommunities = (coms) => {
         return coms.map(x => (
             <Grid key={x.id} item xs={12}>
-                <CommunitySmallCard model={x}></CommunitySmallCard>
+                <CommunitySmallCard
+                    isLogined={true}
+                    model={x}
+                    onEntryClick={this.onCommunityEntry}
+                    onGoAwayClick={this.onCommunityGoAway}
+                ></CommunitySmallCard>
             </Grid>
         ));
     }

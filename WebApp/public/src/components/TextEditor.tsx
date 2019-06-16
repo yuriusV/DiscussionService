@@ -36,10 +36,10 @@ class TextEditor extends React.Component<any, any> {
                 </Grid>
                 <Grid item xs={8}/>
                 <Grid item xs={2}>
-                    <Button onClick={this.onSave}>Save</Button>
+                    <Button onClick={this.onSave}>Зберегти</Button>
                 </Grid>
                 <Grid item xs={2}>
-                    <Button onClick={this.onCancel}>Cancel</Button>
+                    <Button onClick={this.onCancel}>Скасувати</Button>
                 </Grid>
             </Grid>
         )

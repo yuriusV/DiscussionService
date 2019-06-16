@@ -76,31 +76,31 @@ module AuthHandlers =
         let body = context.ReadBodyFromRequest().GetAwaiter().GetResult()
         let jo = JObject.Parse(body)
 
-        let login = getJValue<string> jo "login"
-        let password = getJValue<string> jo "password"
+        let login = Json.getJValue<string> jo "login"
+        let password = Json.getJValue<string> jo "password"
         let checkRes = AuthUtil.loginWithCredentials context login password
         if checkRes then
-            outputJson Res.success next context
+            Json.outputJson Res.success next context
         else
-            outputJson Res.fail next context
+            Json.outputJson Res.fail next context
 
     let makeLogout next context = 
         let res = AuthUtil.logout context
-        if res then outputJson Res.success next context
-        else outputJson Res.fail next context
+        if res then Json.outputJson Res.success next context
+        else Json.outputJson Res.fail next context
 
     let makeRegister next (context: HttpContext) =
         let body = context.ReadBodyFromRequest().GetAwaiter().GetResult()
         let jo = JObject.Parse(body)
 
-        let login = getJValue<string> jo "login"
-        let password = getJValue<string> jo "password"
-        let fullName = getJValue<string> jo "fullName"
+        let login = Json.getJValue<string> jo "login"
+        let password = Json.getJValue<string> jo "password"
+        let fullName = Json.getJValue<string> jo "fullName"
         let checkRes = AuthUtil.register context fullName login password
         if checkRes then
-            outputJson Res.success next context
+            Json.outputJson Res.success next context
         else
-            outputJson Res.fail next context
+            Json.outputJson Res.fail next context
 
 let apiHandler: HttpHandler = 
     choose [

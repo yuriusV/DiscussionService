@@ -180,7 +180,7 @@ class OneComment extends React.Component<any, any> {
                             <IconButton onClick={this.makeReply}>
                                 <CommentIcon />
                                 <Typography>
-                                    Reply
+                                    Відповісти
                                 </Typography>
                             </IconButton>
                         </Grid>

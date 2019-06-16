@@ -125,7 +125,7 @@ class RecipeReviewCard extends React.Component<any, any> {
                 <ShareIcon />
             </IconButton>
             
-            <Typography><Link href={"/user/" + this.props.model.author.url}>{this.props.model.author.name}</Link> in community <Link href={"/community/" + this.props.model.community.url}>{this.props.model.community.name}</Link></Typography>
+            <Typography><Link href={"/user/" + this.props.model.author.url}>{this.props.model.author.name}</Link> в спільноті <Link href={"/community/" + this.props.model.community.url}>{this.props.model.community.name}</Link></Typography>
 
             <IconButton
                 className={classnames(classes.expand, {

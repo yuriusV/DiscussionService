@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, Theme } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -23,6 +23,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classnames from 'classnames';
 
 import PostContent from './PostContent'
+import { Button, Badge } from '@material-ui/core';
 
 const styles = theme => ({
   card: {
@@ -50,6 +51,16 @@ const styles = theme => ({
   },
 });
 
+const StyledBadge = withStyles((theme: Theme) => ({
+    badge: {
+      top: '50%',
+      right: 1,
+      border: `2px solid ${
+        theme.palette.type === 'light' ? theme.palette.grey[200] : theme.palette.grey[900]
+      }`,
+    },
+  }))(Badge);
+
 class RecipeReviewCard extends React.Component<any, any> {
   state = Object.assign({expanded: false}, this.props.model)
 
@@ -66,7 +77,7 @@ class RecipeReviewCard extends React.Component<any, any> {
                 </IconButton>
             }
             title={this.props.model.name}
-            subheader={this.props.model.countUsers + " users, " + this.props.model.countPosts + " posts"}
+            subheader={this.props.model.countUsers + " учасників, " + this.props.model.countPosts + " постів"}
             onClick={() => {location.href = "/community/" + this.props.model.url}}
         />
 
@@ -75,9 +86,13 @@ class RecipeReviewCard extends React.Component<any, any> {
         </CardContent>
         <CardActions className={classes.actions} disableActionSpacing>
 
-            <IconButton>
-                <ThumbUpIcon />
-            </IconButton>
+            {this.props.model.isMember != 1? (
+                <IconButton>
+                <Button onClick={this.props.onEntryClick(this.props.model.id)}>Приєднатись</Button>
+                </IconButton>) 
+            : (this.props.model.isMember == 1 ? (
+                <Button onClick={this.props.onGoAwayClick(this.props.model.id)}>Покинути</Button>)
+            : <div/>)}
             
         </CardActions>
       </Card>

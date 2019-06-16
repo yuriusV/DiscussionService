@@ -6,7 +6,7 @@ import {default as data} from '../appData'
 import PostLong from '../components/PostLong'
 import CommentTree from '../components/CommentTree'
 import PostShort from '../components/PostShort'
-import { Card, Paper, Typography, ListItem, ListItemText, List, Link} from '@material-ui/core';
+import { Card, Paper, Typography, ListItem, ListItemText, List, Link, Button} from '@material-ui/core';
 import api from '../commonApi'
 
 const user = (data as any).communityPage
@@ -17,6 +17,14 @@ class PostWidget extends React.Component<any, any> {
         this.state = {
             posts: []
         }
+    }
+
+    onCommunityEntry = communityId => () => {
+        api.enterCommunity(communityId).then(x => location.reload())
+    }
+
+    onCommunityGoAway = communityId => () => {
+        api.exitCommunity(communityId).then(x => location.reload())
     }
 
     getCommunityUrl = () => {
@@ -46,23 +54,19 @@ class PostWidget extends React.Component<any, any> {
         return (
             <Paper style={{width: '100%', padding: '30px'}}>
                 <Grid container>
-                    <Grid item xs={12}>
-                        <Typography><h2><b>{state.name}</b></h2></Typography>
+                    <Grid item xs={8}>
+                        <Typography><h2>{state.name}</h2></Typography>
                     </Grid>
-                    <Grid item xs={12}>
-                        <List>
-                            <ListItem>
-                                <ListItemText>
-                                    <b>Users</b> {state.countUsers}
-                                </ListItemText>
-                            </ListItem>
-
-                            <ListItem>
-                                <ListItemText>
-                                    <b>Posts</b> {state.countPosts}
-                                </ListItemText>
-                            </ListItem>
-                        </List>
+                    <Grid item xs={4}>
+                        {this.state.isMember != 1? (
+                            <Button onClick={this.onCommunityEntry(this.state.id)}>Приєднатись</Button>) 
+                        : (<Button onClick={this.onCommunityGoAway(this.state.id)}>Покинути</Button>)}
+                    </Grid>
+                    <Grid item xs={2}>
+                        <b>{state.countUsers}</b> користувачів
+                    </Grid>
+                    <Grid item xs={2}>
+                        <b>{state.countPosts}</b> постів
                     </Grid>
                 </Grid>
             </Paper>

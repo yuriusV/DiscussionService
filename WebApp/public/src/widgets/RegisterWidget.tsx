@@ -126,15 +126,15 @@ class NewPostWidget extends React.Component<any, any> {
                             variant="outlined"
                         >
                             <MenuItem key={0} value={0}>
-                                Male
+                                Чоловіча
                                 </MenuItem>
                             <MenuItem key={1} value={1}>
-                                Female
+                                Жіноча
                                 </MenuItem>
                         </TextField>
                     </Grid>
                     <Grid item xs={4}>
-                        <Button onClick={this.onClickCreatePost.bind(this)}>Create post</Button>
+                        <Button onClick={this.onClickCreatePost.bind(this)}>Зареєструватись</Button>
                     </Grid>
                 </Grid>
             </Paper>

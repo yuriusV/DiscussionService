@@ -6,10 +6,10 @@ import { default as data } from '../appData'
 import PostLong from '../components/PostLong'
 import CommentTree from '../components/CommentTree'
 import PostShort from '../components/PostShort'
-import { Card, Paper, Typography, ListItem, ListItemText, List, Link, Button, TextField, Input, MenuItem } from '@material-ui/core';
+import { Card, Paper, Typography, ListItem, ListItemText, List, Link, Button, TextField, Input, MenuItem, InputAdornment, IconButton, InputLabel } from '@material-ui/core';
 import api from '../commonApi'
-import TextEditor from '../components/TextEditor';
-import { Editor, EditorState, convertToRaw } from 'draft-js';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 
 const user = (data as any).userPage
 
@@ -79,38 +79,47 @@ class LoginWidget extends React.Component<any, any> {
                 <Grid item xs={4}>
                     <Paper style={{ width: '100%', padding: '30px' }}>
                         <Grid container>
-                            <Grid item xs={12}>
-                                <TextField
-                                    id="login"
-                                    label="Login"
-                                    style={{ width: '100%'}}
+                            <Grid item xs={12} style={{margin: '20px'}}>
+                            <InputLabel htmlFor="adornment-login">Логін</InputLabel>
+                                <Input
+                                    id="adornment-login"
+                                    type="text"
                                     value={this.state.login}
-                                    onChange={e => this.setState({ login: e.target.value })}
-                                    margin="normal"
-                                    variant="outlined"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    id="password"
-                                    label="Password"
                                     style={{ width: '100%'}}
-                                    value={this.state.password}
-                                    onChange={e => this.setState({ password: e.target.value })}
-                                    margin="normal"
-                                    variant="outlined"
-                                    multiline={true}
+                                    onChange={e => this.setState({ login: e.target.value })}
                                 />
                             </Grid>
-                            <Grid item xs={6}>
-                                <Button 
-                                style={{ width: '100%'}}
-                                onClick={this.onClickLogin.bind(this)}>Login</Button>
+                            <Grid item xs={12} style={{margin: '20px'}}>
+                                <InputLabel htmlFor="adornment-password">Пароль</InputLabel>
+                                <Input
+                                    id="adornment-password"
+                                    type={this.state.showPassword ? 'text' : 'password'}
+                                    value={this.state.password}
+                                    style={{ width: '100%'}}
+                                    onChange={e => this.setState({ password: e.target.value })}
+                                    endAdornment={
+                                        <InputAdornment position="end">
+                                        <IconButton aria-label="Toggle password visibility" onClick={e => this.setState({ showPassword: !this.state.showPassword })}>
+                                            {this.state.showPassword ? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                        </InputAdornment>
+                                    }
+                                />
                             </Grid>
-                            <Grid item xs={6}>
-                                <Button 
+                            <Grid item xs={5}>
+                                <Button
+                                variant="contained" 
+                                color="primary"
                                 style={{ width: '100%'}}
-                                onClick={this.onClickRegister.bind(this)}>Register</Button>
+                                onClick={this.onClickLogin.bind(this)}>Вхід</Button>
+                            </Grid>
+                            <Grid item xs={2}/>
+                            <Grid item xs={5}>
+                                <Button
+                                variant="outlined" 
+                                color="primary"
+                                style={{ width: '100%'}}
+                                onClick={this.onClickRegister.bind(this)}>Реєстрація</Button>
                             </Grid>
                             <Grid item xs={12}>
                                 {this.state.unsuccessMessage}

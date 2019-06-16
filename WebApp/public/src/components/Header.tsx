@@ -155,13 +155,13 @@ class PrimarySearchAppBar extends React.Component<any, any> {
                 {
                     user ?
                     (
-                        [<MenuItem onClick={this.handleMenuClose('profile')}>Profile</MenuItem>,
-                        <MenuItem onClick={this.handleMenuClose('settings')}>Settings</MenuItem>,
-                        <MenuItem onClick={this.handleMenuClose('logout')}>Log out</MenuItem>]
+                        [<MenuItem onClick={this.handleMenuClose('profile')}>Профіль</MenuItem>,
+                        <MenuItem onClick={this.handleMenuClose('settings')}>Налаштування</MenuItem>,
+                        <MenuItem onClick={this.handleMenuClose('logout')}>Вихід</MenuItem>]
                     ) :
                     (
-                        [<MenuItem onClick={this.handleMenuClose('login')}>Log in</MenuItem>,
-                        <MenuItem onClick={this.handleMenuClose('register')}>Register</MenuItem>]
+                        [<MenuItem onClick={this.handleMenuClose('login')}>Вхід</MenuItem>,
+                        <MenuItem onClick={this.handleMenuClose('register')}>Реєстрація</MenuItem>]
                     )
                 }
             </Menu>
@@ -189,14 +189,14 @@ class PrimarySearchAppBar extends React.Component<any, any> {
                 <AppBar position="static">
                     <Toolbar>
                         <Typography className={classes.title} variant="h6" noWrap>
-                            <Link underline='none' style={{color: 'white'}} href="/">Disscussion service</Link>
+                            <Link underline='none' style={{color: 'white'}} href="/">Дискус online</Link>
                         </Typography>
                         <div className={classes.search}>
                             <div className={classes.searchIcon}>
                                 <SearchIcon />
                             </div>
                             <InputBase
-                                placeholder="Search posts, users communities…"
+                                placeholder="Пошук постів, користувачів, спільнот..."
                                 classes={{
                                     root: classes.inputRoot,
                                     input: classes.inputInput,

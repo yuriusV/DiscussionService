@@ -33,7 +33,7 @@ const styles = {
     }
 };
 
-class NewPostWidget extends React.Component<any, any> {
+class NewCommunityWidget extends React.Component<any, any> {
     
     constructor(props) {
         super(props)
@@ -58,7 +58,7 @@ class NewPostWidget extends React.Component<any, any> {
         ))
     }
 
-    onClickCreatePost = () => {
+    onClickCreateCommunity = () => {
         api.createPost({
             communityId: this.state.community,
             title: this.state.title,
@@ -86,7 +86,7 @@ class NewPostWidget extends React.Component<any, any> {
                     <Grid item xs={12}>
                         <TextField
                           id="content"
-                          label="Content"
+                          label="Description"
                           value={this.state.content}
                           onChange={e => this.setState({content: e.target.value})}
                           margin="normal"
@@ -94,26 +94,8 @@ class NewPostWidget extends React.Component<any, any> {
                           multiline={true}
                         />
                     </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                              id="community"
-                              select
-                              label="Спільнота"
-                              value={this.state.community}
-                              onChange={e => this.setState({community: e.target.value})}
-                              helperText="Select community which to post"
-                              margin="normal"
-                              variant="outlined"
-                            >
-                              {this.state.communities.map(c => (
-                                <MenuItem key={c.id} value={c.id}>
-                                  {c.name}
-                                </MenuItem>
-                              ))}
-                        </TextField>
-                    </Grid>
                     <Grid item xs={4}>
-                        <Button onClick={this.onClickCreatePost.bind(this)}>Опублікувати</Button>
+                        <Button onClick={this.onClickCreateCommunity.bind(this)}>Створити спільноту!</Button>
                     </Grid>
                 </Grid>
             </Paper>
@@ -122,4 +104,4 @@ class NewPostWidget extends React.Component<any, any> {
 }
 
 
-export default NewPostWidget;
+export default NewCommunityWidget;
