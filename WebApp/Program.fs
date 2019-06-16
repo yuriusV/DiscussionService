@@ -16,29 +16,10 @@ open Microsoft.Extensions.DependencyInjection
 open Giraffe
 open System
 open System.IO
-open System.Collections.Generic
-open Microsoft.AspNetCore.Builder
-open Microsoft.AspNetCore.Hosting
-open Microsoft.AspNetCore.Http
-open Microsoft.Extensions.Logging
-open Microsoft.Extensions.DependencyInjection
-open Giraffe
 open Giraffe.HttpHandlers
 open Giraffe.Middleware
-open Giraffe.Razor.HttpHandlers
 open Giraffe.Razor.Middleware
-open Microsoft.AspNetCore.Authentication
-open Microsoft.AspNetCore.Authentication.Cookies
-open  Microsoft.Extensions.DependencyInjection
-open Microsoft.AspNetCore.Authentication
-open Microsoft.AspNetCore.Authentication.Cookies
 
-open Microsoft.Extensions.Configuration
-
-open Giraffe.HttpContextExtensions
-open DataAccess
-open Routes
-open Microsoft.AspNetCore.Authentication.Cookies
 open AuthUtil
 
 module Logger =

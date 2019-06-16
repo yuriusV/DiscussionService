@@ -2,7 +2,6 @@ module Models
 
 open System
 
-open LinqToDB
 open LinqToDB.Mapping
 open System.ComponentModel.DataAnnotations.Schema
 [<CLIMutable>]

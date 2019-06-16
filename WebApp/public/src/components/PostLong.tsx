@@ -25,6 +25,7 @@ import api from '../commonApi'
 import TextEditor from './TextEditor'
 
 import PostContent from './PostContent'
+import VoteBlock from './VoteBlock'
 
 const styles = theme => ({
     card: {
@@ -107,6 +108,7 @@ class RecipeReviewCard extends React.Component<any, any> {
                 <CardContent>
                     <PostContent model={this.props.model.content} />
                 </CardContent>
+                {!!this.props.model.id ? <VoteBlock postId={this.props.model.id}/>: <div/>}
                 <CardActions className={classes.actions} disableActionSpacing>
 
                     <IconButton onClick={this.makeLike}>

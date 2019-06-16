@@ -59,6 +59,17 @@ let ofJson (context: HttpContext) keys =
     })
 
 module Handlers = 
+    let makePollChoice  next (context: HttpContext) =
+        task {
+            let! body = context.ReadBodyFromRequest()
+            let jo = JObject.Parse(body)
+            let pollId = getJValue<int32> jo "pollId"
+            let vote = getJValue<int32> jo "choice"
+            let userId = AuthUtil.getCurrentUserId context
+            let voteNewData = LogicQueries.Polls.makePollChoice pollId userId vote
+            return! json voteNewData next context
+        }    
+
     let createPostHandler next (context: HttpContext) = 
         task {
             let! body = context.ReadBodyFromRequest()
@@ -160,8 +171,15 @@ let defaultApiHandler: HttpHandler =
             jsonResponse LogicQueries.Posts.deletePost (fun s -> i)) >=> outputJson Res.success
         POST >=> route "/votePost" >=> Handlers.votePostHanler >=> outputJson Res.success
         POST >=> route "/voteComment" >=> Handlers.voteCommentHanler >=> outputJson Res.success
-        POST >=> route "/votePoll" // TODO
         POST >=> route "/makeComment" >=> Handlers.makeCommentHandler >=> outputJson Res.success
+
+        // Polls
+        GET >=> routef "/loadPollsData/%i" (fun (postId: int32) -> 
+            jsonResponse LogicQueries.Polls.loadPollsData (fun x -> postId))
+        GET >=> routef "/loadPollData/%i" (fun (pollId: int32) -> 
+            jsonResponse LogicQueries.Polls.loadPollData (fun x -> pollId))
+        POST >=> route "/makePollChoice" >=> Handlers.makePollChoice
+
 
         // Communities
         route "/enterCommunity"

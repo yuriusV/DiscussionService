@@ -16,6 +16,10 @@ open Tx
 open Tx
 open Sql
 open Tx
+open LinqToDB.Linq
+open Tx
+open System.Reflection.Metadata.Ecma335
+open Tx
 
 let createConnectionString user pass db = 
     sprintf @"User ID=%s;Password=%s;Host=localhost;Port=5432;Database=%s" user pass db
@@ -31,6 +35,8 @@ let sql = SqlWrapper(connectionManager)
 let exec sqlCommand = sql.ExecNonQuery sqlCommand [] |> ignore
 let param = Sql.Parameter.make
 let execReader (qry : StringBuilder) = sql.ExecReader (qry.ToString())
+let execReaderString qry = sql.ExecReader qry
+let execNonQueryString s = sql.ExecNonQuery s
 let execNonQuery (qry : StringBuilder) = sql.ExecNonQuery (qry.ToString())
 let escaper = new NpgsqlCommandBuilder()
 let escape = escaper.QuoteIdentifier
@@ -48,20 +54,29 @@ let readMapFromDataRecord (dataRecord: #IDataRecord) =
         for i = 0 to dataRecord.FieldCount - 1 do
             yield (dataRecord.GetName(i), dataRecord.GetValue(i))
     ]
+
+let sqlRead sql parameters = 
+    use reader = execReaderString sql parameters
+    reader |> Seq.ofDataReader |> Seq.map readMapFromDataRecord  |> Seq.toArray
         
-let sqlToOutput sql parameters = 
+let sqlToMap sql parameters = 
     use reader = execReader sql parameters
     reader |> Seq.ofDataReader |>  Seq.map readMapFromDataRecord |> Seq.toArray
 
 let getSingleRowValue<'t> (a: Map<string, obj>[]) key =
     Map.find key (Array.head a) :?> 't
 
+type N<'a when 'a: (new: unit -> 'a) and 'a: struct and 'a :> ValueType> = Nullable<'a>
+
+//deletet this
+let uncastDbNull (a: obj) =
+    match a with
+    | :? System.DBNull as x -> null
+    | _ -> a
 
 let (?) m key = 
     Map.find key m
 
-let (--) a key =
-    Map.find key (Array.head a)
 
 module CommonQueries =
 
@@ -77,7 +92,7 @@ module CommonQueries =
             |> List.map (fun (k, v) -> param(k, v))
 
         let qry = Query (sprintf """ select * from "%s" where %s """ (entityName) filtersSql)
-        sqlToOutput qry parameters
+        sqlToMap qry parameters
 
     let getById entityName id = 
         getByFilters entityName (Map.ofList [("Id", (id :> obj) )])
@@ -127,7 +142,7 @@ module CommonQueries =
             (String.concat "\n" joinList) 
             (if List.isEmpty filterList then "" else " where " + (String.concat " and " filterList)))
 
-        sqlToOutput qry paramList
+        sqlToMap qry paramList
     
     let fullGetById entityName id (columns: string list) = 
         fullGetByFilters entityName (Seq.singleton ("Id", id)) columns
@@ -148,9 +163,9 @@ module CommonQueries =
         let qry = Query(sprintf """ update "%s" set %s where "Id" = @id; """ (escape entityName) columns)
         execNonQuery qry parameters
 
-module LogicQueries = 
+module LogicQueries =
     let getUserProfile id =
-        sqlToOutput (Query """
+        sqlToMap (Query """
             select 
                 "Id" as id, 
                 "FullName" as "name", 
@@ -160,7 +175,7 @@ module LogicQueries =
             where "Id" = @id""") [param("id", id)]
 
     let searchInSite searchText = 
-        sqlToOutput (Query """
+        sqlToMap (Query """
             select
                 "Id" as id,
                 "Title" as title,
@@ -188,7 +203,7 @@ module LogicQueries =
 
 
     let getUserFeed userId = 
-        sqlToOutput (Query """
+        sqlToMap (Query """
             select
             	"Post"."Id" as id,
             	"Post"."Title" as title,
@@ -212,7 +227,7 @@ module LogicQueries =
            """) [param("userId", userId)]
 
     let getCommuintyPageCardInfo communityId = 
-        sqlToOutput (Query """
+        sqlToMap (Query """
             select
             c."Id" as id,
             c."Name" as "name",
@@ -225,7 +240,7 @@ module LogicQueries =
             """) [param("community", communityId)]
 
     let getCommunityPosts communityId = 
-        sqlToOutput (Query """
+        sqlToMap (Query """
                     select
 	"Post"."Id" as id,
 	"Post"."Title" as title,
@@ -249,7 +264,7 @@ module LogicQueries =
                 """) [param("communityId", communityId)]
 
     let getUserCardInfo (userName: string) = 
-        sqlToOutput (Query """
+        sqlToMap (Query """
                    select
             	u."Id" as id,
             	u."FullName" as "name",
@@ -263,7 +278,7 @@ module LogicQueries =
                 """) [param("user", userName)]
 
     let getUserCardInfoById userId = 
-        sqlToOutput (Query """
+        sqlToMap (Query """
                    select
             	u."Id" as id,
             	u."FullName" as "name",
@@ -279,7 +294,7 @@ module LogicQueries =
 
 
     let getUserPosts userId = 
-        sqlToOutput (Query """
+        sqlToMap (Query """
                     select
 	"Post"."Id" as id,
 	"Post"."Title" as title,
@@ -303,7 +318,7 @@ module LogicQueries =
                 """) [param("userId", userId)]
 
     let getPostData postId =
-        sqlToOutput (Query """
+        sqlToMap (Query """
                    select
 	"Post"."Id" as id,
 	"Post"."Title" as title,
@@ -328,7 +343,7 @@ module LogicQueries =
 
 
     let getPostComments postId = 
-        sqlToOutput (Query """
+        sqlToMap (Query """
                     select
 	c."Id" as id,
     @postId as "postId",
@@ -348,7 +363,7 @@ where c."PostId" = @postId
                 """) [param("postId", postId)]
 
     let getListCommunities offset limit = 
-        sqlToOutput (Query """
+        sqlToMap (Query """
         select
         	c."Id" as id,
         	c."UrlName" as "url",
@@ -360,7 +375,7 @@ where c."PostId" = @postId
         """) []
 
     let getListUsers offset limit = 
-        sqlToOutput (Query """
+        sqlToMap (Query """
              select
             	u."Id" as id,
             	u."Name" as "url",
@@ -382,7 +397,7 @@ where c."PostId" = @postId
             execNonQuery (Query """delete from "Post" where "Id" = @id""") [param("id", postId)]
 
         let getCanVotePost currentUserId postId = 
-            let result = (sqlToOutput (Query """ 
+            let result = (sqlToMap (Query """ 
             select count(1) as "Can" from "UserInCommunity"
                 inner join "Post" p on p."CommunityId" = "UserInCommunity"."CommunityId"
                 where "UserId" = @userId
@@ -400,7 +415,7 @@ where c."PostId" = @postId
                     param("postId", postId); param("vote", vote)] |> ignore
             else ()
 
-            sqlToOutput (Query """
+            sqlToMap (Query """
                 select
                     (select count(*) from "PostVote" where "PostId" = @postId and "Vote" > 0) "likes",
                     (select count(*) from "PostVote" where "PostId" = @postId and "Vote" < 0) "dislikes",
@@ -410,7 +425,7 @@ where c."PostId" = @postId
 
     module Comments = 
         let getCanVoteComment currentUserId commentId = 
-            let result = (sqlToOutput (Query """ select count(c."Id") as "Can"
+            let result = (sqlToMap (Query """ select count(c."Id") as "Can"
                 from "Comment" c
                 inner join "Post" pic on pic."Id" = c."PostId"
                 where c."Id" = @commentId
@@ -428,7 +443,7 @@ where c."PostId" = @postId
                     param("commentId", commentId); param("vote", vote)] |> ignore
             else ()
 
-            sqlToOutput (Query """
+            sqlToMap (Query """
                 select
                     (select count(*) from "CommentVote" where "CommentId" = @commentId and "Vote" > 0) "likes",
                     (select count(*) from "CommentVote" where "CommentId" = @commentId and "Vote" < 0) "dislikes",
@@ -445,6 +460,123 @@ where c."PostId" = @postId
                 param("authorId", userId); 
                 param("dataContent", content); 
                 param("createdOn", time)]
+    
+    module Polls = 
+
+        type PollData = {
+            id: int64 N;
+            title: obj;
+            votes: PollVote list;
+        }
+        and PollVote = {
+            id: int32;
+            name: string;
+        }
+
+        let loadPollsData postId =
+            let parseResultConfig (s: obj) = 
+                match s with
+                | :? System.String as x -> (
+                        let parts = x.Split(';')
+                        if parts.Length > 1 then
+                            (parts.[0], parts.[1].Split(',') 
+                            |> Seq.mapi (fun i x -> {PollVote.id = i; name = x})
+                            |> List.ofSeq)
+                        else ("", [])
+                        
+                    ) 
+                    
+                | _ -> ("", [])
+             
+            
+
+            let polls = (sqlRead ("""
+                    select 
+                    	p."Id",
+                    	p."PollConfig"
+                    from "Poll" p
+                    where p."PostId" = @postId
+                """) [param("postId", postId)])
+            if polls.Length = 0 then [||]
+            else
+                polls
+                |> Array.map (fun x -> (
+                    let pollConfig = x?PollConfig
+                    let title, results = parseResultConfig pollConfig
+                    {
+                        id = x?Id |> uncastDbNull :?> N<int64>;
+                        title = title;
+                        votes = results;
+                    }
+                ))
+
+        type PollAnswer = {
+            date: DateTime N;
+            userId: int32 N;
+            vote: int32;
+        }
+
+        let loadPollData pollId = 
+            let polls = (sqlRead ("""
+                select
+                	pr."ResultConfig",
+                	pr."UserId",
+                	pr."CreatedDate"
+                from "Poll" p
+                inner join "PollResult" pr on pr."PollId" = p."Id"
+                where pr."PollId" = @pollId
+                """) [param("pollId", pollId)])
+            if polls.Length = 0 then [||]
+            else
+                polls
+                |> Array.map (fun x -> {
+                    date = x?CreatedDate |> uncastDbNull :?> DateTime N
+                    userId = x?UserId |> uncastDbNull :?> int32 N
+                    vote = System.Int32.Parse(x?ResultConfig :?> string)
+                })
+
+        let makePollChoice pollId userId choiceId =
+            let isExists = ((sqlRead """ 
+                select count(1) as "Count" from "PollResult" 
+                where "UserId" = @user 
+                    and "PollId" = @poll """ [param("user", userId); param("poll", pollId)]).[0]?Count :?> int64) > 0L
+            
+            if isExists then
+                execNonQueryString ("""
+                    update "PollResult" set "ResultConfig" = @result where "UserId" = @user and "PollId" = @poll
+                """) [param("date", DateTime.Now); 
+                    param("user", userId); 
+                    param("poll", pollId); 
+                    param("result", choiceId.ToString())] |> ignore
+            else
+                execNonQueryString ("""
+                    INSERT INTO "PollResult" ("CreatedDate", "UserId", "PollId", "ResultConfig")
+VALUES (@date, @user, @poll, @result)
+                """) [param("date", DateTime.Now); 
+                    param("user", userId); 
+                    param("poll", pollId); 
+                    param("result", choiceId.ToString())] |> ignore
+                
+            loadPollData pollId
+    (*
+        [
+  {
+"date": "2019-05-15T10:23:54",
+"userId": 1,
+"vote": 0
+},
+  {
+"date": "2019-05-15T10:23:54",
+"userId": 1,
+"vote": 1
+},
+  {
+"date": "2019-06-15T19:32:53.245324",
+"userId": 1,
+"vote": 1
+}
+],
+    *)
 
 module AuthQueries =
 
@@ -458,7 +590,7 @@ values (@login, @fullName, @login, @hashedPassword, @registerTime, @registerTime
             param("token", token);
             param("registerTime", registerTime)] |> ignore
         
-        sqlToOutput (Query """
+        sqlToMap (Query """
             select
 	            "Id" as id
             from "User"
@@ -466,7 +598,7 @@ values (@login, @fullName, @login, @hashedPassword, @registerTime, @registerTime
         """) [param("token", token)]
 
     let getLoginData token =
-        sqlToOutput (Query """
+        sqlToMap (Query """
             select
     MAX("Id") as "Id",
 	MAX("Name") as "Name",
@@ -484,12 +616,12 @@ where "SessionToken" = @token
         """) [param("token", token)]
 
     let getAlreadyExistsLogin login =
-        sqlToOutput (Query """
+        sqlToMap (Query """
             select count(1) as "Count" from "User" where "Login" = @login
         """) [param("login", login)]
 
     let checkCredentials login passwordHash = 
-        sqlToOutput (Query """
+        sqlToMap (Query """
             select
 	MAX("Name") as "Name",
     MAX("FullName") as "FullName",
@@ -502,7 +634,7 @@ where "Login" = @login
         """) [param("login", login); param("password", passwordHash)]
     
     let setTokenToUser userId token =
-        sqlToOutput (Query """
+        sqlToMap (Query """
             update "User" set "SessionToken" = @token
             where "Id" = @userId
         """) [param("userId", userId); param("token", token)]

@@ -77,5 +77,9 @@ export default {
     votePoll: post('votePoll'),
     makeComment: post('makeComment'),
     login,
-    logout
+    logout,
+    // polls
+    loadPollsData: request('loadPollsData'),
+    loadPollData: request('loadPollData'),
+    makePollChoice: post('makePollChoice')
 }
