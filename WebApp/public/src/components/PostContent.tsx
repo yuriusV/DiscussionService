@@ -34,7 +34,7 @@ class PostContent extends React.Component<any, any> {
     }
 
     renderText = (text, i) => {
-        return (<Typography key={i}>{text}</Typography>)
+        return (<Typography key={i} style={{fontSize: '22px'}}>{text}</Typography>)
     }
 
     renderImage = (image, i) => {

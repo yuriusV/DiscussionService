@@ -153,14 +153,14 @@ class OneComment extends React.Component<any, any> {
                 <ExpansionPanelSummary>
                     <Grid container>
                         <Grid item xs={12}>
-                        <Link underline='none' style={{color: 'black'}} href={'/user/' + this.props.model.author.url}>
+                        <Link underline='none' style={{color: 'black', fontSize: '22px'}} href={'/user/' + this.props.model.author.url}>
                             <b>{this.props.model.author.name}
                             </b></Link>
                         <span>&nbsp;&nbsp;&nbsp;&nbsp;{new Date(this.props.model.time).toLocaleTimeString()}</span>
                         <br/>
                         </Grid>
 
-                        <Grid item xs={12}>
+                        <Grid item xs={12} style={{margin: '20px'}}>
                                 <PostContent model={this.props.model.content} />
                         </Grid>
                         <Grid item xs={12}>

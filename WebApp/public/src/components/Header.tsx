@@ -206,9 +206,9 @@ class PrimarySearchAppBar extends React.Component<any, any> {
                         </div>
                         <div className={classes.grow} />
                         <Tabs value={this.mapPathToTabNumber(this.props.location.pathname)}>
-                            <Tab href="/" label="Feed" />
-                            <Tab href="/communities" label="Communities" />
-                            <Tab href="/users" label="Users" />
+                            <Tab href="/" label="Стрічка" />
+                            <Tab href="/communities" label="Спільноти" />
+                            <Tab href="/users" label="Користувачі" />
                         </Tabs>
                         <div className={classes.sectionDesktop}>
                             {user ? 
@@ -217,7 +217,7 @@ class PrimarySearchAppBar extends React.Component<any, any> {
                                 </Typography>)
                                 : 
                                     (<Button style={{color: 'white'}} onClick={this.handleMenuClose('login')}>
-                                    Login
+                                    Вхід
                                     </Button>)}
                             <IconButton
                                 aria-owns={isMenuOpen ? 'material-appbar' : undefined}

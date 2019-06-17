@@ -428,6 +428,7 @@ where c."PostId" = @postId
             	c."UrlName" as "url",
             	c."Name" as "name",
             	c."UrlPhoto" as "urlPhoto",
+                c."Description" as "description",
             	(select count(1) from "Post" where "CommunityId" = c."Id") as "countPosts",
             	(select count(1) from "UserInCommunity" uc where uc."CommunityId" = c."Id") as "countUsers",
                 (select count(1) from "UserInCommunity" uc where uc."CommunityId" = c."Id" and uc."UserId" = @user) as "isMember"

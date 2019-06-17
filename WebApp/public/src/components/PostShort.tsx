@@ -27,7 +27,7 @@ import PostContent from './PostContent'
 
 const styles = theme => ({
   card: {
-    width: '90%',
+    width: '100%',
   },
   media: {
     height: 0,
@@ -59,22 +59,26 @@ class RecipeReviewCard extends React.Component<any, any> {
   };
 
   makeLike = () => {
-      api.votePost({
-          postId: this.props.model.id,
-          vote: 1
-      }).then(x => {
-        this.setState(state => ({likes: state.likes + 1}))
-      })
-    
-  }
+    api.votePost({
+        postId: this.props.model.id,
+        vote: 1
+    }).then(x => {
+        this.setState({likes: x.likes, dislikes: x.dislikes, myVote: x.user})
+    })
 
-  makeDislike = () => {
+}
+
+makeDislike = () => {
     api.votePost({
         postId: this.props.model.id,
         vote: -1
     }).then(x => {
-        this.setState(state => ({dislikes: state.dislikes + 1}))
+        this.setState({likes: x.likes, dislikes: x.dislikes, myVote: x.user})
     })
+}
+
+  getPostShortenContent = (content) => {
+    return content.substring(0, 120) + (content.length > 120 ? "..." : "");
   }
 
   render() {
@@ -94,7 +98,7 @@ class RecipeReviewCard extends React.Component<any, any> {
         />
 
         <CardContent>
-            <PostContent model={this.props.model.content} Kostyle />
+            <PostContent model={this.getPostShortenContent(this.props.model.content)} Kostyle />
         </CardContent>
         <CardActions className={classes.actions} disableActionSpacing>
 

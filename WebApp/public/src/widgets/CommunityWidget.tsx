@@ -55,12 +55,12 @@ class PostWidget extends React.Component<any, any> {
             <Paper style={{width: '100%', padding: '30px'}}>
                 <Grid container>
                     <Grid item xs={8}>
-                        <Typography><h2>{state.name}</h2></Typography>
+                        <Typography style={{fontSize: '25px'}}>{state.name}</Typography>
                     </Grid>
                     <Grid item xs={4}>
                         {this.state.isMember != 1? (
-                            <Button onClick={this.onCommunityEntry(this.state.id)}>Приєднатись</Button>) 
-                        : (<Button onClick={this.onCommunityGoAway(this.state.id)}>Покинути</Button>)}
+                            <Button variant="contained" color="primary"  onClick={this.onCommunityEntry(this.state.id)}>Приєднатись</Button>) 
+                        : (<Button variant="contained" color="secondary"  onClick={this.onCommunityGoAway(this.state.id)}>Покинути</Button>)}
                     </Grid>
                     <Grid item xs={2}>
                         <b>{state.countUsers}</b> користувачів
@@ -76,19 +76,20 @@ class PostWidget extends React.Component<any, any> {
     render() {
         return (
             <Grid container spacing={24}>
-                <Grid item xs={1}/>
-                <Grid item xs={9}>
+                <Grid item xs={2}/>
+                <Grid item xs={8}>
                     <Grid container spacing={24}>
                         {this.getCommunityInfoCard(this.state)}
                     </Grid>
                 </Grid>
                 <Grid item xs={2}/>
-                <Grid item xs={1}/>
-                <Grid item xs={9}>
+                <Grid item xs={2}/>
+                <Grid item xs={8}>
                     <Grid container spacing={24}>
                         {this.getPosts(this.state)}
                     </Grid>
                 </Grid>
+                <Grid item xs={2}/>
             </Grid>
         )
     }

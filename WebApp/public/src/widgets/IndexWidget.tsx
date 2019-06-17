@@ -55,10 +55,10 @@ class IndexWidget extends React.Component<any, any> {
         return (
             <div className={classes.root}>
                 <Grid container spacing={24}>
-                    <Grid item xs={1}>
+                    <Grid item xs={2}>
 
                     </Grid>
-                    <Grid item xs={9}>
+                    <Grid item xs={8}>
                         <Grid container spacing={24}>
                             {this.getPosts(this.state.posts)}
                         </Grid>

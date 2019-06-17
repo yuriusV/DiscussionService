@@ -44,13 +44,13 @@ class PostWidget extends React.Component<any, any> {
     render() {
         return (
             <Grid container spacing={24}>
-                <Grid item xs={1}/>
-                <Grid item xs={10}>
+                <Grid item xs={2}/>
+                <Grid item xs={8}>
                     <PostLong model={this.state.post}/>
                 </Grid>
-                <Grid item xs={1}/>
-                <Grid item xs={1}/>
-                <Grid item xs={10}>
+                <Grid item xs={2}/>
+                <Grid item xs={2}/>
+                <Grid item xs={8}>
                     <CommentTree comments={makeCommentTree(this.state.comments)}/>
                 </Grid>
             </Grid>

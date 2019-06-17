@@ -81,17 +81,17 @@ class RecipeReviewCard extends React.Component<any, any> {
             onClick={() => {location.href = "/community/" + this.props.model.url}}
         />
 
-        <CardContent>
-            
+        <CardContent style={{fontSize: '22px'}}>
+            {this.props.model.description}
         </CardContent>
         <CardActions className={classes.actions} disableActionSpacing>
 
             {this.props.model.isMember != 1? (
                 <IconButton>
-                <Button onClick={this.props.onEntryClick(this.props.model.id)}>Приєднатись</Button>
+                <Button variant="contained" color="primary"  onClick={this.props.onEntryClick(this.props.model.id)}>Приєднатись</Button>
                 </IconButton>) 
             : (this.props.model.isMember == 1 ? (
-                <Button onClick={this.props.onGoAwayClick(this.props.model.id)}>Покинути</Button>)
+                <Button variant="contained" color="secondary"  onClick={this.props.onGoAwayClick(this.props.model.id)}>Покинути</Button>)
             : <div/>)}
             
         </CardActions>
