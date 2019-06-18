@@ -1,10 +1,11 @@
 import * as React from 'react';
 
-import Grid from '@material-ui/core/Grid';
+import { Grid, Paper, Button, List, ListItem, Link, ListItemText, ListItemIcon } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
 import PostShort from '../components/PostShort'
 import {default as data} from '../appData'
+import PeopleIcon from '@material-ui/icons/People';
 import api from '../commonApi'
 
 const styles = theme => ({
@@ -23,13 +24,17 @@ class IndexWidget extends React.Component<any, any> {
     constructor(props) {
         super(props)
         this.state ={
-            posts: []
+            posts: [],
+            communities: []
         }
     }
 
     componentDidMount = () => {
         api.getUserFeed().then(x => {
             this.setState({posts: x})
+        })
+        api.getUserCommunities().then(x => {
+            this.setState({communities: x})
         })
     }
 
@@ -64,7 +69,39 @@ class IndexWidget extends React.Component<any, any> {
                         </Grid>
                     </Grid>
                     <Grid item xs={2}>
-                        
+                        <Grid container>
+                            <Grid item xs={12}>
+                                <Paper style={{padding: '30px', marginBottom: '20px'}}>
+                                    <Button 
+                                        variant="contained" 
+                                        color="primary"
+                                        onClick={e => location.href = '/newPost'}>Створити пост</Button> <br/><br/>
+                                    <Button 
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={e => location.href = '/newCommunity'}>Створити спільноту</Button>
+                                </Paper>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Paper style={{padding: '30px'}}>
+                                    <b style={{fontSize: '20xp'}}>Ваші спільноти</b>
+                                    <br/>
+                                    <br/>
+                                    <List>
+                                        {this.state.communities.map(x => (
+                                            <ListItem>
+                                                <ListItemIcon>
+                                                    <PeopleIcon/>
+                                                </ListItemIcon>
+                                                <ListItemText>
+                                                    <Link href={"/community/" + x.url}>{x.name}</Link>
+                                                </ListItemText>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </Paper>
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </Grid>
             </div>

@@ -46,7 +46,7 @@ class NewPostWidget extends React.Component<any, any> {
     }
 
     componentDidMount = () => {
-        api.getCurrentUserCommunities().then(x => {
+        api.getUserCommunities().then(x => {
             this.setState({ communities: x })
         })
     }
@@ -81,6 +81,7 @@ class NewPostWidget extends React.Component<any, any> {
                             onChange={e => this.setState({ title: e.target.value })}
                             margin="normal"
                             variant="outlined"
+                            style={{ width: '100%'}}
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -92,6 +93,8 @@ class NewPostWidget extends React.Component<any, any> {
                             margin="normal"
                             variant="outlined"
                             multiline={true}
+                            
+                            style={{ width: '100%'}}
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -104,6 +107,7 @@ class NewPostWidget extends React.Component<any, any> {
                             helperText="Select community which to post"
                             margin="normal"
                             variant="outlined"
+                            style={{ width: '100%'}}
                         >
                             {this.state.communities.map(c => (
                                 <MenuItem key={c.id} value={c.id}>

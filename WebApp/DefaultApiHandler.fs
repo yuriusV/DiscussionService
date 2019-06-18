@@ -202,6 +202,8 @@ let defaultApiHandler: HttpHandler =
             Json.jsonResponse LogicQueries.getPostComments (fun s -> post))
         route "/getListCommunities" >=> 
             Json.jsonResponse (fun userId -> LogicQueries.Communities.getListCommunities userId 0 100) (AuthUtil.getCurrentUserId)
+        route "/getUserCommunities" >=> 
+            Json.jsonResponse LogicQueries.Communities.getCurrentUserCommunities (AuthUtil.getCurrentUserId)
         routef "/getListUsers/%i" 
             (fun (byPosts: int32) -> Json.jsonResponse (fun x -> LogicQueries.getListUsers (byPosts = 1) 0 100) ignore)
         route "/getCurrentUserInfo" >=> Handlers.getCurrentUserInfo

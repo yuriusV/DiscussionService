@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Grid from '@material-ui/core/Grid';
+import { Grid, Checkbox, Chip} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
 import {default as data} from '../appData'
@@ -41,12 +41,15 @@ class NewPostWidget extends React.Component<any, any> {
             title: '',
             content: '',
             communities: [],
-            community: 0
+            community: 0,
+            voteEnabled: false,
+            voteTitle: "",
+            voteVariants: ""
         }
     }
 
     componentDidMount = () => {
-        api.getCurrentUserCommunities().then(x => {
+        api.getUserCommunities().then(x => {
             this.setState({communities: x})
         })
     }
@@ -54,7 +57,7 @@ class NewPostWidget extends React.Component<any, any> {
 
     getCommunities = (communities) => {
         return communities.map(x => (
-            <Link href={"/communities/" + x.url}>{x.name}</Link>
+            <Link href={"/community/" + x.url}>{x.name}</Link>
         ))
     }
 
@@ -64,59 +67,115 @@ class NewPostWidget extends React.Component<any, any> {
             title: this.state.title,
             content: this.state.content
         }).then(x => {
-
+            console.log('p', x)
         })
+    }
+
+    renderVariants = () => {
+        return this.state.voteVariants.split('\n').map(x => (<Chip label={x} style={{margin: '4px'}} />))
     }
 
     render = () => {
         return (
-            <Paper style={{width: '100%', padding: '30px'}}>
-                <Grid container>
+            <Grid container>
+                <Grid item xs={3}/>
 
-                    <Grid item xs={12}>
-                        <TextField
-                          id="title"
-                          label="Title"
-                          value={this.state.title}
-                          onChange={e => this.setState({title: e.target.value})}
-                          margin="normal"
-                          variant="outlined"
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                          id="content"
-                          label="Content"
-                          value={this.state.content}
-                          onChange={e => this.setState({content: e.target.value})}
-                          margin="normal"
-                          variant="outlined"
-                          multiline={true}
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                              id="community"
-                              select
-                              label="Спільнота"
-                              value={this.state.community}
-                              onChange={e => this.setState({community: e.target.value})}
-                              helperText="Select community which to post"
-                              margin="normal"
-                              variant="outlined"
-                            >
-                              {this.state.communities.map(c => (
-                                <MenuItem key={c.id} value={c.id}>
-                                  {c.name}
-                                </MenuItem>
-                              ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <Button onClick={this.onClickCreatePost.bind(this)}>Опублікувати</Button>
-                    </Grid>
+                <Grid item xs={6}>
+                    <Paper style={{width: '100%', padding: '30px'}}>
+                        <Grid container>
+
+                            <Grid item xs={12}>
+                                <TextField
+                                id="title"
+                                label="Title"
+                                value={this.state.title}
+                                onChange={e => this.setState({title: e.target.value})}
+                                margin="normal"
+                                variant="outlined"
+                                style={{ width: '100%'}}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                id="content"
+                                label="Content"
+                                rows="10"
+                                rowsMax="20"
+                                value={this.state.content}
+                                onChange={e => this.setState({content: e.target.value})}
+                                margin="normal"
+                                variant="outlined"
+                                multiline={true}
+                                style={{ width: '100%'}}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    id="community"
+                                    select
+                                    label="Спільнота"
+                                    value={this.state.community}
+                                    onChange={e => this.setState({community: e.target.value})}
+                                    helperText="Select community which to post"
+                                    margin="normal"
+                                    variant="outlined"
+                                    style={{ width: '100%'}}
+                                    >
+                                    {this.state.communities.map(c => (
+                                        <MenuItem key={c.id} value={c.id}>
+                                        {c.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Checkbox
+                                    checked={this.state.voteEnabled}
+                                    onChange={e => this.setState({voteEnabled: !this.state.voteEnabled})}
+                                    
+                                    inputProps={{
+                                        'aria-label': 'primary checkbox',
+                                    }}
+                                >Додати опитування</Checkbox>
+                                <div style={{display: this.state.voteEnabled ? "block": "none"}}>
+                                <br/>
+                                <br/>
+                                <TextField
+                                    id="pollTitle"
+                                    label="Тема опитування"
+                                    value={this.state.voteTitle}
+                                    onChange={e => this.setState({voteTitle: e.target.value})}
+                                    margin="normal"
+                                    variant="outlined"
+                                    style={{ width: '100%'}}
+                                />
+                                <br/>
+                                <br/>
+                                <TextField
+                                    id="content"
+                                    label="Варіанти відповіді"
+                                    rows="5"
+                                    rowsMax="20"
+                                    value={this.state.voteVariants}
+                                    onChange={e => this.setState({voteVariants: e.target.value})}
+                                    margin="normal"
+                                    variant="outlined"
+                                    multiline={true}
+                                    style={{ width: '100%'}}
+                                />
+                                <br/>
+                                {this.renderVariants()}
+                                </div>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Button onClick={this.onClickCreatePost.bind(this)}>Опублікувати</Button>
+                            </Grid>
+                        </Grid>
+                    </Paper>
                 </Grid>
-            </Paper>
+
+                <Grid item xs={3}/>
+            </Grid>
         )
     }
 }

@@ -440,6 +440,19 @@ where c."PostId" = @postId
             from "Community" c
             """) [param("user", forUserId)]
 
+
+        let getCurrentUserCommunities userId =
+            sqlToMap (Query """
+            select
+            	c."Id" as id,
+            	c."UrlName" as "url",
+            	c."Name" as "name",
+            	c."UrlPhoto" as "urlPhoto",
+                c."Description" as "description"
+            from "Community" c
+            where exists (select 1 from "UserInCommunity" uc where uc."UserId" = @user and uc."CommunityId" = c."Id")
+            """) [param("user", userId)]
+
         let getCommuintyPageCardInfo communityId forUserId = 
             sqlToMap (Query """
                 select

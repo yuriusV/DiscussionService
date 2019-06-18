@@ -66,7 +66,6 @@ export default {
     getPostData: request('getPostData'),
     getPostComments: request('getPostComments'),
     getUserCommunities: request('getUserCommunities'),
-    getCurrentUserCommunities: request('getCurrentUserCommunities'),
     getListUsers: request('getListUsers'),
     searchInSite: request('searchInSite'),
     // post

@@ -46,7 +46,7 @@ class NewCommunityWidget extends React.Component<any, any> {
     }
 
     componentDidMount = () => {
-        api.getCurrentUserCommunities().then(x => {
+        api.getUserCommunities().then(x => {
             this.setState({communities: x})
         })
     }
