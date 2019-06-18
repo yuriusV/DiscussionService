@@ -554,13 +554,14 @@ where c."PostId" = @postId
             id: int64 N;
             title: obj;
             votes: PollVote list;
+            isVoted: int64 N
         }
         and PollVote = {
             id: int32;
             name: string;
         }
 
-        let loadPollsData postId =
+        let loadPollsData currentUserId postId =
             let parseResultConfig (s: obj) = 
                 match s with
                 | :? System.String as x -> (
@@ -580,10 +581,11 @@ where c."PostId" = @postId
             let polls = (sqlRead ("""
                     select 
                     	p."Id",
-                    	p."PollConfig"
+                    	p."PollConfig",
+                        (select count(1) from "PollResult" pv where pv."UserId" = @user and pv."PollId" = p."Id") "isVoted"
                     from "Poll" p
                     where p."PostId" = @postId
-                """) [param("postId", postId)])
+                """) [param("postId", postId); param("user", currentUserId)])
             if polls.Length = 0 then [||]
             else
                 polls
@@ -594,6 +596,7 @@ where c."PostId" = @postId
                         id = x?Id |> uncastDbNull :?> N<int64>;
                         title = title;
                         votes = results;
+                        isVoted = x?isVoted |> uncastDbNull :?> N<int64>;
                     }
                 ))
 

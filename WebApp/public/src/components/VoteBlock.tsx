@@ -2,6 +2,7 @@ import * as React from 'react';
 import Poll from 'react-polls';
 import commonApi from '../commonApi';
 import { Grid } from '@material-ui/core';
+import VoteBox from './VoteBox'
 
 type PollAnswer = {
 	option: string;
@@ -11,14 +12,18 @@ type PollAnswer = {
 type PollObj = {
 	id: number;
 	question: string;
-	answers: PollAnswer[]
+    answers: PollAnswer[],
+    votes: PollAnswer[],
+    isVoted: boolean
 }
 
 const mapPollFromLoadedToObject = poll => {
 	return {
 		id: poll.id,
 		question: poll.title,
-		answers: poll.votes.map(x => ({option: x.name, votes: 0}))
+        answers: poll.votes.map((x, i) => ({id: i, option: x.name, votes: 0})),
+        isVoted: poll.isVoted > 0,
+        votes: poll.votes
 	}
 }
 
@@ -46,10 +51,11 @@ class VoteBlock extends React.Component<any, any> {
 	}
 
 	updateVotesFromServer = poll => votes => {
-		const pollsToUpdate = this.state.polls.map((x, i) => [x, i]).filter(x => x[0].id === poll.Id)
 
-		for (let x of pollsToUpdate) {
-			x.answers = this.aggregateVotes(votes)(poll.votes)
+		for (let x of this.state.polls) {
+            if (x.id == poll.id) {
+                x.answers = this.aggregateVotes(votes)(poll.votes)
+            }
 		}
 
         this.setState({polls: this.state.polls})
@@ -57,10 +63,11 @@ class VoteBlock extends React.Component<any, any> {
 	}
 
 	aggregateVotes = votes => variants => {
-		return variants.map(variant => {
+		return variants.map((variant, i) => {
 			return {
+                id: i,
 				option: variant.name,
-				votes: votes.fitler(x => x.vote === variant.id)
+				votes: votes.filter(x => x.vote === variant.id).length
 			}
 		})
 	}
@@ -78,21 +85,28 @@ class VoteBlock extends React.Component<any, any> {
 		}
 		const polls = this.state.polls
 
-		commonApi.makePollChoice({ pollId: pollObj.id, choice: voteAnswer })
+        commonApi.makePollChoice({ pollId: pollObj.id, choice: voteAnswer })
+            .then(x => {
+                pollObj.isVoted = true;
+            })
 			.then(this.updateVotesFromServer(pollObj))
 	}
 
 	renderPoll = (pollObj, i) => {
 		return (
 			<Grid item xs={4}>
-				<Poll question={pollObj.question} answers={pollObj.answers} onVote={this.handleVote(pollObj)} />
+                <VoteBox 
+                    voteMode={!pollObj.isVoted} 
+                    question={pollObj.question} 
+                    answers={pollObj.answers} 
+                    onVote={this.handleVote(pollObj)} />
 			</Grid>
 		)
 	}
 
 	render = () => {
 		return (
-			<Grid container>
+			<Grid container style={{margin: '20px'}}>
 				{this.state.polls.map(this.renderPoll)}
 			</Grid>
 		);

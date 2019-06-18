@@ -1,5 +1,6 @@
 const recGetSubComments = (comment, allComments) => {
     let onlySubComments = allComments.filter(x => x.parentId === comment.id)
+    onlySubComments.sort((x, y) => (x.likes - x.dislikes) - (y.likes - y.dislikes))
     comment.children = onlySubComments
     for(let child of onlySubComments) {
         recGetSubComments(child, allComments)
@@ -12,4 +13,17 @@ export const makeCommentTree = (comments) => {
         recGetSubComments(x, comments)
     }
     return rootComments
+}
+
+export const getBetterCommentOrNone = (comments) => {
+    if (!comments || comments.length == 0) return null;
+
+    const minimumRating = 1;
+    const bestValue = Math.max.apply(null, comments.map(x => x.likes - x.dislikes))
+    const commentWithBest = comments.filter(x => (x.likes - x.dislikes) == bestValue)
+    if (commentWithBest.length == 0) return null;
+    if (commentWithBest[0].likes - commentWithBest[0].dislikes >= minimumRating) {
+        return commentWithBest[0]
+    }
+    return null;
 }

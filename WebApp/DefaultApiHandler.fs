@@ -176,6 +176,12 @@ module Handlers =
 
         let updateCommunity next context = 
             json true next context
+    
+    module Polls =
+        let loadPollsData (postId: int32) next context =
+            let userId = AuthUtil.getCurrentUserId context
+            let data = LogicQueries.Polls.loadPollsData userId postId
+            json data next context
 
 let defaultApiHandler: HttpHandler = 
     choose [
@@ -210,8 +216,7 @@ let defaultApiHandler: HttpHandler =
         POST >=> route "/makeComment" >=> Handlers.makeCommentHandler >=> Json.outputJson Res.success
 
         // Polls
-        GET >=> routef "/loadPollsData/%i" (fun (postId: int32) -> 
-            Json.jsonResponse LogicQueries.Polls.loadPollsData (fun x -> postId))
+        GET >=> routef "/loadPollsData/%i" Handlers.Polls.loadPollsData
         GET >=> routef "/loadPollData/%i" (fun (pollId: int32) -> 
             Json.jsonResponse LogicQueries.Polls.loadPollData (fun x -> pollId))
         POST >=> route "/makePollChoice" >=> Handlers.makePollChoice
