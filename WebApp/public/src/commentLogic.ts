@@ -1,6 +1,6 @@
 const recGetSubComments = (comment, allComments) => {
     let onlySubComments = allComments.filter(x => x.parentId === comment.id)
-    onlySubComments.sort((x, y) => (x.likes - x.dislikes) - (y.likes - y.dislikes))
+        .sort((y, x) => (x.likes - x.dislikes) - (y.likes - y.dislikes))
     comment.children = onlySubComments
     for(let child of onlySubComments) {
         recGetSubComments(child, allComments)

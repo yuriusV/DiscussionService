@@ -88,6 +88,7 @@ class VoteBlock extends React.Component<any, any> {
         commonApi.makePollChoice({ pollId: pollObj.id, choice: voteAnswer })
             .then(x => {
                 pollObj.isVoted = true;
+                return x;
             })
 			.then(this.updateVotesFromServer(pollObj))
 	}

@@ -40,7 +40,8 @@ class VoteBlock extends React.Component<any, any> {
     }
 
     getVoteResults = () => {
-        return (this.props.answers.map(x => x.option + " " + x.votes))
+        return (this.props.answers.sort((x, y) => y.votes - x.votes).map(x => (
+        [<span style={{fontSize: '21px'}}><b>{x.option}</b>&nbsp;&nbsp;&nbsp;{x.votes}</span>,<br/>])))
     }
 
 	render = () => {

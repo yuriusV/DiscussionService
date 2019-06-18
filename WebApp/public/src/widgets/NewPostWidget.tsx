@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Grid, Checkbox, Chip} from '@material-ui/core';
+import { Grid, Checkbox, Chip, FormControlLabel} from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 
 import {default as data} from '../appData'
@@ -65,14 +65,16 @@ class NewPostWidget extends React.Component<any, any> {
         api.createPost({
             communityId: this.state.community,
             title: this.state.title,
-            content: this.state.content
+            content: this.state.content,
+            voteTitle: this.state.voteEnabled && this.state.voteTitle,
+            voteVariants: this.state.voteEnabled && this.state.voteVariants
         }).then(x => {
-            console.log('p', x)
+            location.href = "/post/" + x
         })
     }
 
     renderVariants = () => {
-        return this.state.voteVariants.split('\n').map(x => (<Chip label={x} style={{margin: '4px'}} />))
+        return this.state.voteVariants.split('\n').filter(x => !!x && x!= '').map(x => (<Chip label={x} style={{margin: '4px'}} />))
     }
 
     render = () => {
@@ -129,14 +131,18 @@ class NewPostWidget extends React.Component<any, any> {
                                 </TextField>
                             </Grid>
                             <Grid item xs={12}>
-                                <Checkbox
-                                    checked={this.state.voteEnabled}
-                                    onChange={e => this.setState({voteEnabled: !this.state.voteEnabled})}
-                                    
-                                    inputProps={{
-                                        'aria-label': 'primary checkbox',
-                                    }}
-                                >Додати опитування</Checkbox>
+                                <FormControlLabel
+                                    label="Додати опитування"
+                                    control={
+                                    <Checkbox
+                                        checked={this.state.voteEnabled}
+                                        onChange={e => this.setState({voteEnabled: !this.state.voteEnabled})}
+                                        title="Додати опитування"
+                                        inputProps={{
+                                            'aria-label': 'primary checkbox',
+                                        }}
+                                    >Додати опитування</Checkbox>
+                                }/>
                                 <div style={{display: this.state.voteEnabled ? "block": "none"}}>
                                 <br/>
                                 <br/>
