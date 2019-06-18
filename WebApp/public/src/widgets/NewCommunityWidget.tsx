@@ -59,12 +59,11 @@ class NewCommunityWidget extends React.Component<any, any> {
     }
 
     onClickCreateCommunity = () => {
-        api.createPost({
-            communityId: this.state.community,
-            title: this.state.title,
-            content: this.state.content
+        api.createCommunity({
+            name: this.state.title,
+            description: this.state.content
         }).then(x => {
-
+            location.href = "/community/" + x
         })
     }
 
@@ -72,8 +71,8 @@ class NewCommunityWidget extends React.Component<any, any> {
         return (
             <Paper style={{width: '100%', padding: '30px'}}>
                 <Grid container>
-
-                    <Grid item xs={12}>
+                    <Grid item xs={3}/>
+                    <Grid item xs={6}>
                         <TextField
                           id="title"
                           label="Title"
@@ -81,9 +80,12 @@ class NewCommunityWidget extends React.Component<any, any> {
                           onChange={e => this.setState({title: e.target.value})}
                           margin="normal"
                           variant="outlined"
+                          style={{width: '100%'}}
                         />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={3}/>
+                    <Grid item xs={3}/>
+                    <Grid item xs={6}>
                         <TextField
                           id="content"
                           label="Description"
@@ -92,10 +94,12 @@ class NewCommunityWidget extends React.Component<any, any> {
                           margin="normal"
                           variant="outlined"
                           multiline={true}
+                          style={{width: '100%'}}
                         />
                     </Grid>
+                    <Grid item xs={3}/>
                     <Grid item xs={4}>
-                        <Button onClick={this.onClickCreateCommunity.bind(this)}>Створити спільноту!</Button>
+                        <Button variant="contained" color="primary" onClick={this.onClickCreateCommunity.bind(this)}>Створити спільноту!</Button>
                     </Grid>
                 </Grid>
             </Paper>

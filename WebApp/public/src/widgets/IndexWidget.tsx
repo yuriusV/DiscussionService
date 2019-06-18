@@ -7,6 +7,7 @@ import PostShort from '../components/PostShort'
 import {default as data} from '../appData'
 import PeopleIcon from '@material-ui/icons/People';
 import api from '../commonApi'
+import SortIcon from '@material-ui/icons/Sort';
 
 const styles = theme => ({
     root: {
@@ -54,12 +55,31 @@ class IndexWidget extends React.Component<any, any> {
 
     }
 
+    sortBy = type => e => {
+
+    }
+
     render = () => {
         const {classes} = this.props
 
         return (
             <div className={classes.root}>
                 <Grid container spacing={24}>
+                    <Grid item xs={2}/>
+                        <Grid item xs={8}>
+                            <Paper style={{padding: '30px'}}>
+                                <span><SortIcon/></span>
+                                &nbsp;&nbsp;&nbsp;<Button
+                                    disabled={this.state.sortByTime}
+                                    variant={this.state.sortByTime ? "outlined" : "flat"}
+                                    onClick={this.sortBy('posts')}>За часом</Button>
+                                &nbsp;&nbsp;&nbsp;<Button
+                                    disabled={!this.state.sortByTime}
+                                    variant={this.state.sortByTime ? "flat" : "outlined"}
+                                    onClick={this.sortBy('rating')}>За рейтингом</Button>
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={2}/>
                     <Grid item xs={2}>
 
                     </Grid>

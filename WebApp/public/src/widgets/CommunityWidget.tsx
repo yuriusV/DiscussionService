@@ -8,6 +8,7 @@ import CommentTree from '../components/CommentTree'
 import PostShort from '../components/PostShort'
 import { Card, Paper, Typography, ListItem, ListItemText, List, Link, Button} from '@material-ui/core';
 import api from '../commonApi'
+import SortIcon from '@material-ui/icons/Sort';
 
 const user = (data as any).communityPage
 
@@ -73,6 +74,10 @@ class PostWidget extends React.Component<any, any> {
         )
     }
 
+    sortBy = type => e => {
+
+    }
+
     render() {
         return (
             <Grid container spacing={24}>
@@ -83,6 +88,21 @@ class PostWidget extends React.Component<any, any> {
                     </Grid>
                 </Grid>
                 <Grid item xs={2}/>
+                <Grid item xs={2}/>
+                    <Grid item xs={8}>
+                        <Paper style={{padding: '30px'}}>
+                            <span><SortIcon/></span>
+                            &nbsp;&nbsp;&nbsp;<Button
+                                disabled={this.state.sortByTime}
+                                variant={this.state.sortByTime ? "outlined" : "flat"}
+                                onClick={this.sortBy('posts')}>За часом</Button>
+                            &nbsp;&nbsp;&nbsp;<Button
+                                disabled={!this.state.sortByTime}
+                                variant={this.state.sortByTime ? "flat" : "outlined"}
+                                onClick={this.sortBy('rating')}>За рейтингом</Button>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={2}/>
                 <Grid item xs={2}/>
                 <Grid item xs={8}>
                     <Grid container spacing={24}>

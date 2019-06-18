@@ -80,9 +80,13 @@ module Handlers =
             let title = Json.getJValue<string> jo "title"
             let time = DateTime.Now
             let content = Json.getJValue<string> jo "content"
+            let voteTitle = Json.getJValue<string> jo "voteTitle"
+            let voteVariants = Json.getJValue<string> jo "voteVariants"
             //let pollData = getJValue<>
-            LogicQueries.Posts.createPost (getCurrentUserId context) communityId "temp" title time content |> ignore
-            return! next context
+            let url = (time - DateTime(1970, 1, 1)).TotalSeconds.ToString()
+            let postId = LogicQueries.Posts.createPost (getCurrentUserId context) communityId url title time content
+            LogicQueries.Polls.createPoll postId voteTitle voteVariants
+            return! json url next context
         }
 
     let votePostHanler next (context: HttpContext) =
@@ -160,10 +164,10 @@ module Handlers =
                 let body = context.ReadBodyFromRequest().GetAwaiter().GetResult()
                 let jo = JObject.Parse(body)
                 let name = Json.getJValue<string> jo "name"
-                let description = Json.getJValue<string> jo "name"
-                let url = name // todo
+                let description = Json.getJValue<string> jo "description"
+                let url = (DateTime.Now - DateTime(1970, 1, 1)).TotalSeconds.ToString()
                 let succeed = LogicQueries.Communities.createCommunity userId name url description
-                json succeed next context
+                json url next context
 
 
         let deleteCommunity (communityId: int32) next context =

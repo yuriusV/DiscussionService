@@ -240,6 +240,7 @@ module LogicQueries =
             	u."UrlPhoto" as "urlPhoto",
             	(select count(1) from "Comment" where "AuthorId" = 1) as "countComments",
             	(select count(1) from "PostVote" where "PostVote"."UserId" = u."Id" and "Vote" > 0) as pluses,
+                (select count(1) from "Post" where "AuthorId" = u."Id") as "countPosts",
             	(select count(1) from "PostVote" where "PostVote"."UserId" = u."Id" and "Vote" < 0) as minuses,
             	u."Name" as nick
             from "User" u
@@ -349,12 +350,12 @@ where c."PostId" = @postId
 
     module Posts =
         let createPost currentUserId communityId urlName title time content =
-            execNonQuery (Query """
+            (sqlRead ("""
                 insert into "Post" ("AuthorId", "CommunityId", "UrlName", "Title", "CreatedOn", "Content")
-                values ( @currentUserId, @communityId, @urlName, @title, @createdOn, @postContent)
+                values ( @currentUserId, @communityId, @urlName, @title, @createdOn, @postContent)  returning "Id"
             """) [param("currentUserId", currentUserId); 
                 param("communityId", communityId); param("urlName", urlName); 
-                param("title", title); param("createdOn", time); param("postContent", content)]
+                param("title", title); param("createdOn", time); param("postContent", content)]).[0]?Id :?> int64
 
         let deletePost currentUserId postId = 
             execNonQuery (Query """delete from "Post" where "Id" = @id""") [param("id", postId)]
@@ -637,6 +638,14 @@ where c."PostId" = @postId
                     userId = x?UserId |> uncastDbNull :?> int32 N
                     vote = System.Int32.Parse(x?ResultConfig :?> string)
                 })
+
+        let createPoll postId postTitle (postVariants: string) =
+            let variantsWithComma = (postVariants.Replace("\r\n", ",").Replace("\n", ","))
+            let config = postTitle + ";" + System.String.Join(",", variantsWithComma.Split(',') |> Seq.filter (fun x -> x <> ""))
+            execNonQueryString ("""
+                    insert into "Poll" ("PostId", "PollConfig") values (@post, @config)
+                """) [param("post", postId); 
+                    param("config", config)] |> ignore
 
         let makePollChoice pollId userId choiceId =
             let isExists = ((sqlRead """ 
