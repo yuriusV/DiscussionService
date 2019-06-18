@@ -20,6 +20,7 @@ import ThumbDownIcon from '@material-ui/icons/ThumbDown';
 import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import PeopleIcon from '@material-ui/icons/People';
 import classnames from 'classnames';
 
 import PostContent from './PostContent'
@@ -75,6 +76,9 @@ class RecipeReviewCard extends React.Component<any, any> {
                 <IconButton>
                     <MoreVertIcon />
                 </IconButton>
+            }
+            avatar={
+                <PeopleIcon/>
             }
             title={this.props.model.name}
             subheader={this.props.model.countUsers + " учасників, " + this.props.model.countPosts + " постів"}

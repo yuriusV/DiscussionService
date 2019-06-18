@@ -20,6 +20,7 @@ import ThumbDownIcon from '@material-ui/icons/ThumbDown';
 import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import AccountIcon from '@material-ui/icons/AccountCircle';
 
 import TextEditor from './TextEditor'
 import classnames from 'classnames';
@@ -153,6 +154,7 @@ class OneComment extends React.Component<any, any> {
                 <ExpansionPanelSummary>
                     <Grid container>
                         <Grid item xs={12}>
+                        <AccountIcon/>&nbsp;&nbsp;&nbsp;
                         <Link underline='none' style={{color: 'black', fontSize: '22px'}} href={'/user/' + this.props.model.author.url}>
                             <b>{this.props.model.author.name}
                             </b></Link>

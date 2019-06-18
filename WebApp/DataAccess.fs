@@ -332,14 +332,19 @@ where c."PostId" = @postId
                 """) [param("postId", postId)]
 
 
-    let getListUsers offset limit = 
+    let getListUsers isByPosts offset limit = 
         sqlToMap (Query """
+            with "S" as (
              select
             	u."Id" as id,
             	u."Name" as "url",
             	u."FullName" as "name",
-            	u."UrlPhoto" as "urlPhoto"
-            from "User" u
+            	u."UrlPhoto" as "urlPhoto",
+                (select count(1) from "UserInCommunity" where "UserId" = u."Id") as "countCommunities",
+                (select count(1) from "Post" where "AuthorId" = u."Id") as "countPosts"
+                from "User" u
+            )
+            select * from "S" order by "S"."countPosts" desc
         """) []
 
     module Posts =

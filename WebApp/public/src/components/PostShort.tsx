@@ -22,6 +22,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classnames from 'classnames';
 import api from '../commonApi'
+import SubjectRoundedIcon from '@material-ui/icons/SubjectRounded';
 
 import PostContent from './PostContent'
 
@@ -92,7 +93,11 @@ makeDislike = () => {
                     <MoreVertIcon />
                 </IconButton>
             }
-            title={this.props.model.title}
+            avatar={
+                <SubjectRoundedIcon/>
+            }
+            title={
+                <span style={{fontSize: '23px'}}>{this.props.model.title}</span>}
             subheader={new Date(this.props.model.time).toLocaleTimeString()}
         
         />
