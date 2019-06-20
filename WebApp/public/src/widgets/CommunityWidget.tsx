@@ -6,9 +6,11 @@ import {default as data} from '../appData'
 import PostLong from '../components/PostLong'
 import CommentTree from '../components/CommentTree'
 import PostShort from '../components/PostShort'
-import { Card, Paper, Typography, ListItem, ListItemText, List, Link, Button} from '@material-ui/core';
+import AccountIcon from '@material-ui/icons/AccountCircle';
+import { Card, Paper, Typography, ListItem, ListItemText, List, Link, Button, ListItemIcon} from '@material-ui/core';
 import api from '../commonApi'
 import SortIcon from '@material-ui/icons/Sort';
+import {getCook} from '../utilities'
 
 const user = (data as any).communityPage
 
@@ -16,7 +18,8 @@ class PostWidget extends React.Component<any, any> {
     constructor(props) {
         super(props)
         this.state = {
-            posts: []
+            posts: [],
+            users: []
         }
     }
 
@@ -40,6 +43,10 @@ class PostWidget extends React.Component<any, any> {
             return api.getCommunityPosts(x[0].id)
         }).then(x => {
             this.setState({posts: x})
+        }).then(x => {
+            api.getCommunityUsers(this.state.id).then(x => {
+                this.setState({users: x})
+            })
         })
     }
 
@@ -51,17 +58,60 @@ class PostWidget extends React.Component<any, any> {
         ))
     }
 
+    renderCommunitiyUsers = () => {
+        return [
+            <b style={{fontSize: '22px'}}>Користувачі</b>,
+            <br/>,
+            <List>
+                {this.state.users.map(x => (
+                    <ListItem>
+                            <ListItemIcon>
+                                <AccountIcon/>
+                            </ListItemIcon>
+                            <ListItemText>
+                                <Link href={"/user/" + x.name}>{x.fullName}</Link>
+                            </ListItemText>
+                    </ListItem>
+                ))}
+            </List>
+        ]
+    }
+
+    onCommunityDelete = (communityId) => e => {
+        api.deleteCommunity(communityId).then(x => {
+            if (x) location.href = "/"
+        })
+    }
+
     getCommunityInfoCard = (state) => {
         return (
             <Paper style={{width: '100%', padding: '30px'}}>
                 <Grid container>
                     <Grid item xs={8}>
                         <Typography style={{fontSize: '25px'}}>{state.name}</Typography>
+                        <br/>
+                        <br/>
+                        {this.renderCommunitiyUsers()}
                     </Grid>
                     <Grid item xs={4}>
                         {this.state.isMember != 1? (
                             <Button variant="contained" color="primary"  onClick={this.onCommunityEntry(this.state.id)}>Приєднатись</Button>) 
-                        : (<Button variant="contained" color="secondary"  onClick={this.onCommunityGoAway(this.state.id)}>Покинути</Button>)}
+                        : [
+                            <Button variant="contained" color="primary"  
+                                onClick={e => location.href = "/newPostCommunity/" + state.id}>Створити пост</Button>,
+                            <br/>,
+                            <br/>,
+                            <br/>,
+                            <Button variant="outlined" color="secondary"  
+                                onClick={this.onCommunityGoAway(this.state.id)}>Покинути</Button>
+                        ]}
+                        {this.state.isOwner > 0 ? [
+                            <br/>,
+                            <br/>,
+                            <br/>,
+                            <Button variant="contained" color="secondary"  
+                                onClick={this.onCommunityDelete(this.state.id)}>Видалити спільноту</Button>
+                        ] : []}
                     </Grid>
                     <Grid item xs={2}>
                         <b>{state.countUsers}</b> користувачів

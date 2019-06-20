@@ -6,7 +6,9 @@ import {default as data} from '../appData'
 import PostLong from '../components/PostLong'
 import CommentTree from '../components/CommentTree'
 import PostShort from '../components/PostShort'
-import { Card, Paper, Typography, ListItem, ListItemText, List, Link, Button} from '@material-ui/core';
+import PeopleIcon from '@material-ui/icons/People';
+
+import { Card, Paper, Typography, ListItem, ListItemText, List, Link, Button, ListItemIcon} from '@material-ui/core';
 import api from '../commonApi'
 
 const user = (data as any).userPage
@@ -29,8 +31,7 @@ class PostWidget extends React.Component<any, any> {
     }
 
     componentDidMount = () => {
-        let userUrl = this.getUserUrl()
-        if (userUrl === '') {
+        if (this.getIsProfile()) {
             api.getCurrentUserInfo().then(x => {
                 this.setState(x[0])
                 return api.getUserPosts(x[0].id)
@@ -44,6 +45,10 @@ class PostWidget extends React.Component<any, any> {
             }).then(x => {
                 this.setState({posts: x})
             })
+            api.getCommunitiesOfUser(this.getUserUrl())
+                .then(x => {
+                    this.setState({communities: x})
+                })
         }
     }
 
@@ -53,6 +58,10 @@ class PostWidget extends React.Component<any, any> {
                 <PostShort model={x} />
             </Grid>
         ))
+    }
+    
+    getIsProfile = () => {
+        return location.pathname === "/profile";
     }
 
     getCommunities = (communities) => {
@@ -69,16 +78,31 @@ class PostWidget extends React.Component<any, any> {
         location.href = "/newCommunity"
     }
 
+    renderUserCommunities = () => {
+        return [
+            <b style={{fontSize: '22px'}}>Спільноти</b>,
+            <br/>,
+            <List>
+                {this.state.communities.map(x => (
+                    <ListItem>
+                            <ListItemIcon>
+                                <PeopleIcon/>
+                            </ListItemIcon>
+                            <ListItemText>
+                                <Link href={"/community/" + x.url}>{x.name}</Link>
+                            </ListItemText>
+                    </ListItem>
+                ))}
+            </List>
+        ]
+    }
+
     getUserInfoCard = (state) => {
         return (
             <Paper style={{width: '100%', padding: '30px'}}>
                 <Grid container>
-                    <Grid item xs={12}>
-                        <Typography><h2><b>{state.nick}</b></h2></Typography>
-                    </Grid>
                     <Grid item xs={6}>
-                        <Typography style={{fontSize: '22px'}}><b>Ім'я</b> {state.name}</Typography>
-                        <Typography style={{fontSize: '22px'}}><b>Спільноти</b> {this.getCommunities(state.communities)}</Typography>
+                        <Typography><h2><b>{state.nick}</b></h2></Typography>
                     </Grid>
                     <Grid item xs={6}>
                         {location.pathname === "/profile" ? (
@@ -90,9 +114,13 @@ class PostWidget extends React.Component<any, any> {
                                     <Button variant="contained" color="primary" onClick={this.createCommunityAction}>Створити спільноту</Button>
                                 </Grid>
                             </Grid>
-                        ) : <div/>}
+                        ) : this.renderUserCommunities()}
 
                     </Grid>
+                    <Grid item xs={12}>
+                        <Typography style={{fontSize: '22px'}}><b>Ім'я</b> {state.name}</Typography>
+                    </Grid>
+                    
 
                     <Grid item xs={12}>
                         <Grid container>

@@ -66,15 +66,17 @@ export default {
     getPostData: request('getPostData'),
     getPostComments: request('getPostComments'),
     getUserCommunities: request('getUserCommunities'),
+    getCommunitiesOfUser: request('getCommunitiesOfUser'),
     getListUsers: request('getListUsers'),
     searchInSite: request('searchInSite'),
     // post
     createPost: post('createPost'),
-    deletePost: post('deletePost'),
+    deletePost: requestScalar('deletePost'),
     votePost: post('votePost'),
     voteComment: post('voteComment'),
     votePoll: post('votePoll'),
     makeComment: post('makeComment'),
+    getPostTags: request('getPostTags'),
     login,
     logout,
     // polls
@@ -86,6 +88,8 @@ export default {
     exitCommunity: requestScalar('exitCommunity'),
     getCommuintyPageCardInfo: request('getCommuintyPageCardInfo'),
     getCommunityPosts: request('getCommunityPosts'),
+    getCommunityUsers: request('getCommunityUsers'),
     getListCommunities: request('getListCommunities'),
-    createCommunity: post('createCommunity')
+    createCommunity: post('createCommunity'),
+    deleteCommunity: requestScalar('deleteCommunity')
 }

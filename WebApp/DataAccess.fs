@@ -254,7 +254,8 @@ module LogicQueries =
             	u."FullName" as "name",
             	u."UrlPhoto" as "urlPhoto",
                 u."Name" as "login",
-            	(select count(1) from "Comment" where "AuthorId" = 1) as "countComments",
+            	(select count(1) from "Comment" where "AuthorId" = u."Id") as "countComments",
+                (select count(1) from "Post" where "AuthorId" = u."Id") as "countPosts",
             	(select count(1) from "PostVote" where "PostVote"."UserId" = u."Id" and "Vote" > 0) as pluses,
             	(select count(1) from "PostVote" where "PostVote"."UserId" = u."Id" and "Vote" < 0) as minuses,
             	u."Name" as nick
@@ -287,7 +288,7 @@ module LogicQueries =
     where author."Id" = @userId
                 """) [param("userId", userId)]
 
-    let getPostData postId =
+    let getPostData postId forUserId =
         sqlToMap (Query """
                    select
 	"Post"."Id" as id,
@@ -304,12 +305,13 @@ module LogicQueries =
 	"Post"."Content" as "content",
 	(select count(1) from "Comment" where "PostId" = "Post"."Id") as "countComments",
 	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" > 0) as likes,
-	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" < 0) as dislikes
+	(select count(1) from "PostVote" where "Post"."Id" = "PostVote"."PostId" and "Vote" < 0) as dislikes,
+    (case when "Post"."AuthorId" = @user then 1 else 0 end) as "isOwner"
     from "Post"
     inner join "Community" c on "Post"."CommunityId" = c."Id"
     inner join "User" author on author."Id" = "Post"."AuthorId"
     where "Post"."UrlName" = @post
-                """) [param("post", postId)]
+                """) [param("post", postId); param("user", forUserId)]
 
 
     let getPostComments postId = 
@@ -349,13 +351,25 @@ where c."PostId" = @postId
         """) []
 
     module Posts =
-        let createPost currentUserId communityId urlName title time content =
-            (sqlRead ("""
+        let getTags postId = 
+            sqlRead """
+                select "Tag" as "tag" from "PostTag"
+                where "PostId" = @post
+            """ [param("post", postId)]
+            
+        let createPost currentUserId communityId urlName title time content (tags: string) =
+            let postId = (sqlRead ("""
                 insert into "Post" ("AuthorId", "CommunityId", "UrlName", "Title", "CreatedOn", "Content")
                 values ( @currentUserId, @communityId, @urlName, @title, @createdOn, @postContent)  returning "Id"
             """) [param("currentUserId", currentUserId); 
                 param("communityId", communityId); param("urlName", urlName); 
                 param("title", title); param("createdOn", time); param("postContent", content)]).[0]?Id :?> int64
+
+            for tag in tags.Split(' ') do
+                execNonQuery (Query """insert into "PostTag" ("PostId", "Tag") values (@post, @tag) """) 
+                    [param("post", postId); param("tag", tag)] |> ignore
+
+            postId
 
         let deletePost currentUserId postId = 
             execNonQuery (Query """delete from "Post" where "Id" = @id""") [param("id", postId)]
@@ -393,7 +407,7 @@ where c."PostId" = @postId
                 from "Comment" c
                 inner join "Post" pic on pic."Id" = c."PostId"
                 where c."Id" = @commentId
-                and pic."CommunityId" in (select "Id" from "UserInCommunity" where "UserId" = @userId)
+                and pic."CommunityId" in (select "CommunityId" from "UserInCommunity" where "UserId" = @userId)
                  """) [param("commentId", commentId); param("userId", currentUserId)])
             (getSingleRowValue<int64> result "Can") > 0L
 
@@ -427,6 +441,20 @@ where c."PostId" = @postId
 
 
     module Communities = 
+        let getCommunitiesOfUser userUrl =
+            sqlToMap (Query """
+            select
+            	c."Id" as id,
+            	c."UrlName" as "url",
+            	c."Name" as "name",
+            	c."UrlPhoto" as "urlPhoto",
+                c."Description" as "description"
+            from "Community" c
+            inner join "UserInCommunity" uc on uc."CommunityId" = c."Id"
+            inner join "User" u on u."Id" = uc."UserId"
+            where u."Name" = @user
+            """) [param("user", userUrl)]
+
         let getListCommunities forUserId offset limit =
             sqlToMap (Query """
             select
@@ -441,6 +469,16 @@ where c."PostId" = @postId
             from "Community" c
             """) [param("user", forUserId)]
 
+        let getCommunityUsers communityId = 
+            sqlToMap (Query """
+            select
+            	u."Id" as id,
+            	u."FullName" as "fullName",
+            	u."Name" as "name"
+            from "User" u
+            inner join "UserInCommunity" uc on uc."UserId" = u."Id"
+            where uc."CommunityId" = @community
+            """) [param("community", communityId)]
 
         let getCurrentUserCommunities userId =
             sqlToMap (Query """
@@ -463,7 +501,9 @@ where c."PostId" = @postId
                 c."UrlPhoto" as "urlPhoto",
                 (select count(1) from "UserInCommunity" where "CommunityId" = c."Id") as "countUsers",
                 (select count(1) from "Post" where "CommunityId" = c."Id") as "countPosts",
-                (select count(1) from "UserInCommunity" uc where uc."CommunityId" = c."Id" and uc."UserId" = @user) as "isMember"
+                (select count(1) from "UserInCommunity" uc where uc."CommunityId" = c."Id" and uc."UserId" = @user) as "isMember",
+                (select count(1) from "UserInCommunity" uc where uc."CommunityId" = c."Id" and uc."UserId" = @user
+                    and uc."RoleId" = 1) as "isOwner"
                 from "Community" c
                 where c."UrlName" = @community
                 """) [param("community", communityId); param("user", forUserId)]
@@ -550,7 +590,7 @@ where c."PostId" = @postId
                 """ 
                     [param("community", communityId); 
                         param("user", userId);
-                        param("adminRole", Constants.communityAdmin)]).[0]?Count :?> int32) > 0)
+                        param("adminRole", Constants.communityAdmin)]).[0]?Count :?> int64) > 0L)
             
             if not isCreator then false
             else
@@ -564,6 +604,7 @@ where c."PostId" = @postId
     
     module Polls = 
 
+        type Vote = {title: string; variants: string}
         type PollData = {
             id: int64 N;
             title: obj;
@@ -639,13 +680,14 @@ where c."PostId" = @postId
                     vote = System.Int32.Parse(x?ResultConfig :?> string)
                 })
 
-        let createPoll postId postTitle (postVariants: string) =
-            let variantsWithComma = (postVariants.Replace("\r\n", ",").Replace("\n", ","))
-            let config = postTitle + ";" + System.String.Join(",", variantsWithComma.Split(',') |> Seq.filter (fun x -> x <> ""))
-            execNonQueryString ("""
-                    insert into "Poll" ("PostId", "PollConfig") values (@post, @config)
-                """) [param("post", postId); 
-                    param("config", config)] |> ignore
+        let createPoll postId votes =
+            for vote in votes do
+                let variantsWithComma = (vote.variants.Replace("\r\n", ",").Replace("\n", ","))
+                let config = vote.title + ";" + System.String.Join(",", variantsWithComma.Split(',') |> Seq.filter (fun x -> x <> ""))
+                execNonQueryString ("""
+                        insert into "Poll" ("PostId", "PollConfig") values (@post, @config)
+                    """) [param("post", postId); 
+                        param("config", config)] |> ignore
 
         let makePollChoice pollId userId choiceId =
             let isExists = ((sqlRead """ 

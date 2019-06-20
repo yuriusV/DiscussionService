@@ -30,6 +30,7 @@ ReactDOM.render (
         <Route path="/communities" component={CommunityList} />
         <Route path="/users" component={UsersList} />
         <Route path="/newPost" component={NewPostWidget} />
+        <Route path="/newPostCommunity/:communityId" component={NewPostWidget} />
         <Route path="/newCommunity" component={NewCommunityWidget} />
         <Route path="/login" component={LoginWidget} />
     </BrowserRouter>,

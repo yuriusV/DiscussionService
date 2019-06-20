@@ -8,6 +8,7 @@ import CommentTree from '../components/CommentTree'
 import OneComment from '../components/OneComment'
 import api from '../commonApi'
 import Poll from 'react-polls';
+import DoneIcon from '@material-ui/icons/Done';
 import { makeCommentTree, getBetterCommentOrNone } from '../commentLogic'
 
 const post = (data as any).openedPost
@@ -22,6 +23,7 @@ class PostWidget extends React.Component<any, any> {
                 content: ''
             },
             comments: [],
+            tags: [],
             bestAnswer: null
         }
     }
@@ -41,7 +43,12 @@ class PostWidget extends React.Component<any, any> {
                 comments: x,
                 bestAnswer: getBetterCommentOrNone(x)
             })
+
+            api.getPostTags(this.state.post.id).then(x => {
+                this.setState({tags: x.map(z => z.tag)})
+            })
         })
+        
     }
 
     render() {
@@ -49,7 +56,7 @@ class PostWidget extends React.Component<any, any> {
             <Grid container spacing={24}>
                 <Grid item xs={2}/>
                 <Grid item xs={8}>
-                    <PostLong model={this.state.post}/>
+                    <PostLong tags={this.state.tags} model={this.state.post}/>
                 </Grid>
                 <Grid item xs={2}/>
 
@@ -57,7 +64,9 @@ class PostWidget extends React.Component<any, any> {
                     <Grid item xs={2}/>,
                     <Grid item xs={8}>
                         <Paper style={{padding: '30px'}}>
+                            <DoneIcon/>&nbsp;&nbsp;
                             <span style={{fontSize: '22px', margin: '10px'}}>Кращий коментар</span>
+                            <br/>
                             <br/>
                             <OneComment model={this.state.bestAnswer}/>
                         </Paper>

@@ -71,6 +71,7 @@ module Handlers =
             return! json voteNewData next context
         }    
 
+    
     let createPostHandler next (context: HttpContext) = 
         task {
             let! body = context.ReadBodyFromRequest()
@@ -80,12 +81,17 @@ module Handlers =
             let title = Json.getJValue<string> jo "title"
             let time = DateTime.Now
             let content = Json.getJValue<string> jo "content"
-            let voteTitle = Json.getJValue<string> jo "voteTitle"
-            let voteVariants = Json.getJValue<string> jo "voteVariants"
+            let tags = Json.getJValue<string> jo "tags"
+            let votes = Json.getJArray jo "votes" |> Seq.map (fun x -> 
+                {
+                    LogicQueries.Polls.Vote.title = Json.getJValue<string> (x :?> JObject)  "title"
+                    LogicQueries.Polls.Vote.variants = Json.getJValue<string> (x :?> JObject) "variants"
+                }
+            )
             //let pollData = getJValue<>
             let url = (time - DateTime(1970, 1, 1)).TotalSeconds.ToString()
-            let postId = LogicQueries.Posts.createPost (getCurrentUserId context) communityId url title time content
-            LogicQueries.Polls.createPoll postId voteTitle voteVariants
+            let postId = LogicQueries.Posts.createPost (getCurrentUserId context) communityId url title time content tags
+            LogicQueries.Polls.createPoll postId votes
             return! json url next context
         }
 
@@ -201,9 +207,13 @@ let defaultApiHandler: HttpHandler =
         routef "/getUserPosts/%i" (fun (post:int) ->
             Json.jsonResponse LogicQueries.getUserPosts (fun s -> post))
         routef "/getPostData/%s" (fun (post:string) ->
-            Json.jsonResponse LogicQueries.getPostData (fun x -> post))
+            Json.jsonResponse (LogicQueries.getPostData post) (AuthUtil.getCurrentUserId))
         routef "/getPostComments/%i" (fun (post:int) ->
             Json.jsonResponse LogicQueries.getPostComments (fun s -> post))
+        routef "/getCommunitiesOfUser/%s" (fun (userUrl: string) -> 
+            Json.jsonResponse LogicQueries.Communities.getCommunitiesOfUser (fun s -> userUrl))
+        routef "/getCommunityUsers/%i" (fun (communityId: int32) -> 
+            Json.jsonResponse LogicQueries.Communities.getCommunityUsers (fun s -> communityId))
         route "/getListCommunities" >=> 
             Json.jsonResponse (fun userId -> LogicQueries.Communities.getListCommunities userId 0 100) (AuthUtil.getCurrentUserId)
         route "/getUserCommunities" >=> 
@@ -211,7 +221,8 @@ let defaultApiHandler: HttpHandler =
         routef "/getListUsers/%i" 
             (fun (byPosts: int32) -> Json.jsonResponse (fun x -> LogicQueries.getListUsers (byPosts = 1) 0 100) ignore)
         route "/getCurrentUserInfo" >=> Handlers.getCurrentUserInfo
-        route "/getPollInfo/%i"
+        routef "/getPostTags/%i" (fun (postId: int32) -> 
+            Json.jsonResponse LogicQueries.Posts.getTags (fun s -> postId))
 
         // Mofify
         POST >=> route "/createPost" >=> Handlers.createPostHandler >=> Json.outputJson Res.success

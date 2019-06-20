@@ -68,11 +68,12 @@ class NewCommunityWidget extends React.Component<any, any> {
     }
 
     render = () => {
-        return (
+        return [
+            <Grid item xs={3}/>,
+            <Grid item xs={6}>
             <Paper style={{width: '100%', padding: '30px'}}>
                 <Grid container>
-                    <Grid item xs={3}/>
-                    <Grid item xs={6}>
+                    <Grid item xs={12}>
                         <TextField
                           id="title"
                           label="Title"
@@ -83,9 +84,7 @@ class NewCommunityWidget extends React.Component<any, any> {
                           style={{width: '100%'}}
                         />
                     </Grid>
-                    <Grid item xs={3}/>
-                    <Grid item xs={3}/>
-                    <Grid item xs={6}>
+                    <Grid item xs={12}>
                         <TextField
                           id="content"
                           label="Description"
@@ -97,13 +96,14 @@ class NewCommunityWidget extends React.Component<any, any> {
                           style={{width: '100%'}}
                         />
                     </Grid>
-                    <Grid item xs={3}/>
-                    <Grid item xs={4}>
+                    <Grid item xs={8}>
                         <Button variant="contained" color="primary" onClick={this.onClickCreateCommunity.bind(this)}>Створити спільноту!</Button>
                     </Grid>
                 </Grid>
             </Paper>
-        )
+            </Grid>,
+            <Grid item xs={3}/>
+        ]
     }
 }
 

@@ -121,6 +121,7 @@ let webApp: HttpHandler =
         routef "/post/%s" (fun s -> htmlFile indexHtmlPath)
         route "/users" >=> htmlFile indexHtmlPath
         route "/newPost" >=> htmlFile indexHtmlPath
+        routef "/newPost/%i" (fun (i: int32) -> htmlFile indexHtmlPath)
         route "/newCommunity" >=> htmlFile indexHtmlPath
         route "/communities" >=> htmlFile indexHtmlPath
         

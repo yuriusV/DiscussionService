@@ -12,7 +12,7 @@ export const makeCommentTree = (comments) => {
     for(let x of rootComments) {
         recGetSubComments(x, comments)
     }
-    return rootComments
+    return rootComments.sort((y, x) => (x.likes - x.dislikes) - (y.likes - y.dislikes))
 }
 
 export const getBetterCommentOrNone = (comments) => {

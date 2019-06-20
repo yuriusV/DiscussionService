@@ -6,7 +6,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import Collapse from '@material-ui/core/Collapse';
-import { Avatar, Button } from '@material-ui/core';
+import { Avatar, Button, Chip } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
@@ -54,7 +54,7 @@ const styles = theme => ({
 });
 
 class RecipeReviewCard extends React.Component<any, any> {
-    state = Object.assign({}, this.props.model)
+    state = Object.assign({tags: []}, this.props.model)
 
     makeLike = () => {
         api.votePost({
@@ -89,6 +89,16 @@ class RecipeReviewCard extends React.Component<any, any> {
         })
     }
 
+    removePost = () => {
+        api.deletePost(this.props.model.id).then(x => {
+            if (x) location.href = "/"
+        })
+    }
+
+    renderTags = () => {
+        return this.props.tags.filter(x => !!x).map(x => (<Chip label={x} style={{margin: '4px'}} />))
+    }
+
     render() {
         const { classes } = this.props;
 
@@ -109,6 +119,8 @@ class RecipeReviewCard extends React.Component<any, any> {
                     <PostContent model={this.props.model.content} />
                 </CardContent>
                 {!!this.props.model.id ? <VoteBlock postId={this.props.model.id}/>: <div/>}
+                <br/>
+                {this.props.tags.length > 0 ? (<span style={{margin: '20px'}}>Теги:&nbsp;&nbsp;{this.renderTags()}</span>) : []}
                 <CardActions className={classes.actions} disableActionSpacing>
 
                     <IconButton onClick={this.makeLike}>
@@ -137,7 +149,12 @@ class RecipeReviewCard extends React.Component<any, any> {
                     </IconButton>
 
                     <Typography><Link href={"/user/" + this.props.model.author.url}>{this.props.model.author.name}</Link> в спільноті <Link href={"/community/" + this.props.model.community.url}>{this.props.model.community.name}</Link></Typography>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Button variant="contained" onClick={this.clickComment}>Коментувати</Button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <Button variant="contained" onClick={this.clickComment}>Коментувати</Button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {this.props.model.isOwner == 1 ? (
+                        <Button variant="outlined" color="secondary" onClick={this.removePost}>Видалити</Button>
+                    ) : []}
                 </CardActions>
 
                 <Collapse in={this.state.commentExpanded} timeout="auto" unmountOnExit>

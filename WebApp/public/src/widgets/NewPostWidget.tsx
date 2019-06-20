@@ -43,8 +43,8 @@ class NewPostWidget extends React.Component<any, any> {
             communities: [],
             community: 0,
             voteEnabled: false,
-            voteTitle: "",
-            voteVariants: ""
+            votes: [],
+            tags: ""
         }
     }
 
@@ -54,6 +54,58 @@ class NewPostWidget extends React.Component<any, any> {
         })
     }
 
+    onAddVote = () => {
+        this.setState({votes: [...this.state.votes, {
+            title: "",
+            variants: ""
+        }]})
+    }
+
+    removeVote = i => () => {
+        this.state.votes.splice(i, 1)
+        this.setState({votes: this.state.votes})
+    }
+
+    renderVotesFields = () => {
+        return this.state.votes.map((vote, index) => (<div>
+        <br/>
+        <br/>
+        <TextField
+            id="pollTitle"
+            label="Тема опитування"
+            value={vote.title}
+            onChange={e => {
+                vote.title = e.target.value
+                this.setState({votes: this.state.votes})
+            }}
+            margin="normal"
+            variant="outlined"
+            style={{ width: '100%'}}
+        />
+        <br/>
+        <br/>
+        <TextField
+            id="content"
+            label="Варіанти відповіді"
+            rows="5"
+            rowsMax="20"
+            value={vote.variants}
+            onChange={e => {
+                vote.variants = e.target.value
+                this.setState({votes: this.state.votes})
+            }}
+            margin="normal"
+            variant="outlined"
+            multiline={true}
+            style={{ width: '100%'}}
+        />
+        <br/>
+        {this.renderVariants('\n')(vote.variants)}
+        <br/>
+        <Button variant="outlined" onClick={e => this.onAddVote()}>Додати ще</Button>
+        <Button variant="outlined" onClick={this.removeVote(index)}>Видалити</Button>
+        </div>))
+    }
 
     getCommunities = (communities) => {
         return communities.map(x => (
@@ -62,19 +114,21 @@ class NewPostWidget extends React.Component<any, any> {
     }
 
     onClickCreatePost = () => {
+        const votes = this.state.voteEnabled ? this.state.votes: []
+
         api.createPost({
             communityId: this.state.community,
             title: this.state.title,
             content: this.state.content,
-            voteTitle: this.state.voteEnabled && this.state.voteTitle,
-            voteVariants: this.state.voteEnabled && this.state.voteVariants
+            votes: votes,
+            tags: this.state.tags
         }).then(x => {
             location.href = "/post/" + x
         })
     }
 
-    renderVariants = () => {
-        return this.state.voteVariants.split('\n').filter(x => !!x && x!= '').map(x => (<Chip label={x} style={{margin: '4px'}} />))
+    renderVariants = delimiter => vars => {
+        return vars.split(delimiter).filter(x => !!x && x!= '').map(x => (<Chip label={x} style={{margin: '4px'}} />))
     }
 
     render = () => {
@@ -116,6 +170,7 @@ class NewPostWidget extends React.Component<any, any> {
                                     id="community"
                                     select
                                     label="Спільнота"
+                                    defaultValue={this.state.communityId}
                                     value={this.state.community}
                                     onChange={e => this.setState({community: e.target.value})}
                                     helperText="Select community which to post"
@@ -131,50 +186,40 @@ class NewPostWidget extends React.Component<any, any> {
                                 </TextField>
                             </Grid>
                             <Grid item xs={12}>
+                                <TextField
+                                    id="tags"
+                                    label="Теги"
+                                    value={this.state.tags}
+                                    onChange={e => this.setState({tags: e.target.value})}
+                                    helperText="Введитіть теги через пробіл"
+                                    margin="normal"
+                                    variant="outlined"
+                                    style={{ width: '100%'}}
+                                    />
+                                    <br/>
+                                    {this.renderVariants(' ')(this.state.tags)}
+                            </Grid>
+                            <Grid item xs={12}>
                                 <FormControlLabel
                                     label="Додати опитування"
                                     control={
                                     <Checkbox
                                         checked={this.state.voteEnabled}
-                                        onChange={e => this.setState({voteEnabled: !this.state.voteEnabled})}
+                                        onChange={e => {
+                                                if(this.state.votes.length == 0) this.onAddVote();
+                                                this.setState({voteEnabled: !this.state.voteEnabled})
+                                            }
+                                        }
                                         title="Додати опитування"
                                         inputProps={{
                                             'aria-label': 'primary checkbox',
                                         }}
                                     >Додати опитування</Checkbox>
                                 }/>
-                                <div style={{display: this.state.voteEnabled ? "block": "none"}}>
-                                <br/>
-                                <br/>
-                                <TextField
-                                    id="pollTitle"
-                                    label="Тема опитування"
-                                    value={this.state.voteTitle}
-                                    onChange={e => this.setState({voteTitle: e.target.value})}
-                                    margin="normal"
-                                    variant="outlined"
-                                    style={{ width: '100%'}}
-                                />
-                                <br/>
-                                <br/>
-                                <TextField
-                                    id="content"
-                                    label="Варіанти відповіді"
-                                    rows="5"
-                                    rowsMax="20"
-                                    value={this.state.voteVariants}
-                                    onChange={e => this.setState({voteVariants: e.target.value})}
-                                    margin="normal"
-                                    variant="outlined"
-                                    multiline={true}
-                                    style={{ width: '100%'}}
-                                />
-                                <br/>
-                                {this.renderVariants()}
-                                </div>
+                                {this.state.voteEnabled? this.renderVotesFields(): []}
                             </Grid>
                             <Grid item xs={4}>
-                                <Button onClick={this.onClickCreatePost.bind(this)}>Опублікувати</Button>
+                                <Button variant="contained" color="primary" onClick={this.onClickCreatePost.bind(this)}>Опублікувати</Button>
                             </Grid>
                         </Grid>
                     </Paper>

@@ -94,15 +94,17 @@ class VoteBlock extends React.Component<any, any> {
 	}
 
 	renderPoll = (pollObj, i) => {
-		return (
-			<Grid item xs={4}>
-                <VoteBox 
+		return [
+            <Grid item xs={2}/>,
+			<Grid item xs={8} style={{padding: '30px'}}>
+                <VoteBox
                     voteMode={!pollObj.isVoted} 
                     question={pollObj.question} 
                     answers={pollObj.answers} 
                     onVote={this.handleVote(pollObj)} />
-			</Grid>
-		)
+			</Grid>,
+            <Grid item xs={2}/>
+        ]
 	}
 
 	render = () => {
